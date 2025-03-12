@@ -1,0 +1,46 @@
+# Core dependencies
+gitpython>=3.1.42
+pyyaml>=6.0.1
+numpy>=1.24.0
+scipy>=1.12.0
+pandas>=2.2.0
+
+# Testing frameworks
+pytest>=8.0.0
+pytest-cov>=4.1.0
+pytest-xdist>=3.5.0
+
+# Performance analysis
+psutil>=5.9.0
+memory-profiler>=0.61.0
+
+# Logging and monitoring
+python-json-logger>=2.0.7
+structlog>=24.1.0
+
+# Data processing
+python-dateutil>=2.8.2
+pytz>=2024.1
+
+# Code analysis
+astroid>=3.0.2
+pylint>=3.0.3
+
+# XML parsing (for test results)
+lxml>=5.1.0
+xmltodict>=0.13.0
+
+# JSON handling
+jsonschema>=4.21.1
+
+# Utilities
+tqdm>=4.66.2  # Progress bars
+click>=8.1.7  # Command line interface
+colorama>=0.4.6  # Colored terminal output
+typing-extensions>=4.9.0  # Enhanced typing support
+
+# Development dependencies
+black>=24.1.1  # Code formatting
+isort>=5.13.2  # Import sorting
+mypy>=1.8.0  # Static type checking
+pre-commit>=3.6.0  # Git hooks

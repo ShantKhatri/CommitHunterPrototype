@@ -1,0 +1,163 @@
+# CommitHunter Configuration File
+
+# Git repository settings
+git:
+  repositories:
+    - name: "openj9"
+      url: "https://github.com/eclipse/openj9"
+      branch: "master"
+      clone_depth: 100
+    - name: "aqa-tests"
+      url: "https://github.com/adoptium/aqa-tests"
+      branch: "master"
+      clone_depth: 50
+  settings:
+    timeout: 900  # 15 minutes
+    cache_dir: ".git_cache"
+    max_diff_size: 5242880  # 1MB
+    tracked_extensions:
+      - ".java"
+      - ".cpp"
+      - ".h"
+      - ".py"
+      - ".js"
+      - ".go"
+    ignore_patterns:
+      - "^test/"
+      - "^docs/"
+      - ".*\\.md$"
+      - ".*\\.txt$"
+
+# Test framework settings
+test:
+  frameworks:
+    - name: "junit"
+      parser: "junit_parser"
+      pattern: "TEST-*.xml"
+      timeout: 300
+    - name: "pytest"
+      parser: "pytest_parser"
+      pattern: "pytest-*.xml"
+      timeout: 300
+    - name: "performance"
+      parser: "perf_parser"
+      pattern: "perf-*.json"
+      timeout: 600
+  settings:
+    result_dir: "./test_results"
+    cache_results: true
+    max_cache_size: 104857600  # 100MB
+    cleanup_threshold: 0.8  # Clean when 80% full
+    retry:
+      count: 3
+      delay: 5  # seconds
+
+# Analyzer configurations
+analyzers:
+  string_matcher:
+    enabled: true
+    min_score: 0.5
+    max_results: 10
+    keyword_weights:
+      message: 1.0
+      stacktrace: 0.8
+      code: 0.6
+      file_name: 0.4
+    suspicious_patterns:
+      - "fix(?:ed|es|ing)?\\s+bug"
+      - "workaround"
+      - "hack"
+      - "temporary\\s+fix"
+      - "FIXME"
+      - "TODO"
+      - "bypass"
+      - "refactor"
+      - "performance\\s+impact"
+      - "race\\s+condition"
+      - "deadlock"
+      - "memory\\s+leak"
+      - "overflow"
+      - "null\\s+pointer"
+      - "exception\\s+handling"
+
+  binary_search:
+    enabled: true
+    test_command: "mvn test -Dtest={test_name}"
+    timeout: 600  # 10 minutes
+    max_iterations: 20
+    test_retry_count: 3
+    test_retry_delay: 5  # seconds
+    cache_results: true
+    parallel_testing: false
+    checkout_timeout: 30  # seconds
+
+  performance:
+    enabled: true
+    regression_threshold: 0.05  # 5% change threshold
+    significance_level: 0.05
+    min_samples: 3
+    metric_fields:
+      - "execution_time"
+      - "memory_usage"
+      - "cpu_usage"
+      - "io_operations"
+    sensitivity:
+      high_risk_threshold: 0.7
+      pattern_weight: 0.7
+      file_weight: 0.3
+    patterns:
+      - pattern: "for\\s*\\([^)]+\\)"
+        description: "Loop construct"
+        weight: 0.8
+      - pattern: "while\\s*\\([^)]+\\)"
+        description: "Loop construct"
+        weight: 0.8
+      - pattern: "synchronized"
+        description: "Synchronization"
+        weight: 0.7
+      - pattern: "new\\s+Thread"
+        description: "Thread creation"
+        weight: 0.6
+
+# Logging configuration
+logging:
+  level: "INFO"
+  file: "logs/commit_hunter.log"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  max_size: 10485760  # 10MB
+  backup_count: 5
+  console:
+    enabled: true
+    level: "INFO"
+    color: true
+  performance_logging:
+    enabled: true
+    separate_file: true
+    file: "logs/performance.log"
+
+# System settings
+system:
+  temp_dir: "temp"
+  max_memory: 1073741824  # 1GB
+  cleanup_interval: 3600  # 1 hour
+  parallel_processes: 4
+  cache:
+    enabled: true
+    dir: ".cache"
+    max_size: 1073741824  # 1GB
+    ttl: 86400  # 24 hours
+
+# Report generation
+reports:
+  output_dir: "reports"
+  formats:
+    - "json"
+    - "html"
+  html_template: "templates/report.html"
+  include_graphs: true
+  max_commits_in_report: 100
+  sections:
+    - "summary"
+    - "commits"
+    - "performance"
+    - "recommendations"
