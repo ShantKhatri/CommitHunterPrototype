@@ -1,0 +1,519 @@
+<html><head>
+<title>CommitHunter Analysis Report</title>
+
+        <style>
+            /* Base styles */
+            body { 
+                font-family: Arial, sans-serif; 
+                margin: 20px; 
+                color: #333;
+                line-height: 1.6;
+            }
+            code { font-family: Consolas, monospace; }
+            pre { 
+                white-space: pre-wrap; 
+                background-color: #f5f5f5; 
+                padding: 10px; 
+                border-radius: 4px; 
+                overflow: auto;
+                max-height: 400px;
+            }
+            .error { color: #d9534f; }
+            h1, h2, h3, h4, h5, h6 { 
+                margin-top: 1em;
+                margin-bottom: 0.5em;
+                font-weight: 600;
+                color: #333;
+            }
+            h4 { margin: 5px 0; }
+            ul { margin: 5px 0; }
+            
+            /* Table styling */
+            .commit-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 20px 0;
+            }
+            
+            .commit-table th {
+                background-color: #f2f2f2;
+                text-align: left;
+                padding: 8px;
+                border: 1px solid #ddd;
+            }
+            
+            .commit-table td {
+                padding: 8px;
+                border: 1px solid #ddd;
+                vertical-align: top;
+            }
+            
+            .files-container {
+                background-color: #f9f9f9;
+            }
+            
+            .file-list {
+                list-style: none;
+                padding: 0 15px;
+                margin: 5px 0;
+                max-height: 300px;
+                overflow-y: auto;
+                display: block !important;
+            }
+            
+            .file-list li {
+                padding: 3px 0;
+                margin: 2px 0;
+                border-bottom: 1px solid #eee;
+                display: block !important;
+            }
+            
+            .file-list li code {
+                display: inline-block;
+                word-break: break-all;
+            }
+            
+            .score {
+                color: #0066cc;
+                font-weight: bold;
+            }
+            
+            .changes {
+                float: right;
+                font-family: monospace;
+            }
+            
+            .additions {
+                color: green;
+                margin-right: 5px;
+            }
+            
+            .deletions {
+                color: red;
+            }
+            
+            .error-message-box {
+                background-color: #fff3cd;
+                border-left: 4px solid #ffc107;
+                padding: 10px;
+                margin: 15px 0;
+            }
+            
+            /* Binary search styles */
+            
+    .binary-search {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 5px;
+        margin: 20px 0;
+    }
+    
+    .result-summary {
+        background: #e9ecef;
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+    
+    .bad-commit {
+        border-left: 4px solid #dc3545;
+        padding-left: 15px;
+        margin: 15px 0;
+    }
+    
+    .commit-message {
+        background: #fff;
+        padding: 10px;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        white-space: pre-wrap;
+    }
+    
+    .modified-files {
+        list-style: none;
+        padding-left: 0;
+    }
+    
+    .modified-files li {
+        padding: 5px 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .search-history table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+    }
+    
+    .search-history th,
+    .search-history td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .search-history .pass { color: #28a745; }
+    .search-history .fail { color: #dc3545; }
+    
+    .performance-impact {
+        background: #fff3cd;
+        padding: 15px;
+        border-radius: 4px;
+        margin-top: 20px;
+    }
+    
+        </style>
+        
+</head><body>
+<h1>CommitHunter Analysis Report</h1>
+<h2>Analysis Parameters</h2>
+<ul>
+<li>Good Commit: 96ef5c5b4026552ec5d6f0413d034cf09ba7103f</li>
+<li>Bad Commit: eac681f0cee21af67657f575a366590b937a2a13</li>
+<li>Test Name: None</li>
+</ul>
+<h2>StringMatcher Results</h2>
+<p>Status: success</p>
+<p>Duration: 43.62 seconds</p>
+<h3>Suspicious Commits</h3>
+<div class="error-message-box">
+<h4>Error Message Used for Analysis:</h4>
+<pre>Cannot invoke "org.openj9.IProfiler.getResult()" because "profiler" is null: at org.openj9.TestProfiler.testMethod(TestProfiler.java:45)
+    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl....</pre>
+</div>
+<table class="commit-table">
+<tr><th>Commit</th><th>Score</th><th>Author</th><th>Message</th></tr>
+<tr>
+<td><code>a3a09742</code></td>
+<td>1.00</td>
+<td>Keith W. Campbell</td>
+<td>Merge pull request #19917 from thallium/jfr-cpp-flag
+
+Add triggerExecutionSample native...</td>
+</tr>
+<tr>
+<td colspan="4" class="files-container">
+<h5>Modified Files:</h5>
+<ul class="file-list">
+<!-- Found 17 modified files -->
+<li><code>.gitattributes</code> <span class="score">(Score: 0.46)</span> <span class="changes"><span class="additions">+5</span><span class="deletions">-4</span></span></li>
+<li><code>jcl/jpp_configuration.xml</code> <span class="score">(Score: 0.67)</span> <span class="changes"><span class="additions">+1</span><span class="deletions">-1</span></span></li>
+<li><code>jcl/src/java.base/share/classes/com/ibm/oti/vm/VM.java</code> <span class="score">(Score: 0.76)</span> <span class="changes"><span class="additions">+7</span><span class="deletions">-0</span></span></li>
+<li><code>jcl/src/java.base/share/classes/java/lang/System.java</code> <span class="score">(Score: 0.81)</span> <span class="changes"><span class="additions">+4</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/jcl/CMakeLists.txt</code> <span class="score">(Score: 0.63)</span> <span class="changes"><span class="additions">+1</span><span class="deletions">-1</span></span></li>
+<li><code>runtime/jcl/common/com_ibm_oti_vm_VM.cpp</code> <span class="score">(Score: 0.62)</span> <span class="changes"><span class="additions">+221</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/jcl/exports.cmake</code> <span class="score">(Score: 0.58)</span> <span class="changes"><span class="additions">+6</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/jcl/module.xml</code> <span class="score">(Score: 0.55)</span> <span class="changes"><span class="additions">+4</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/jcl/uma/jfr_exports.xml</code> <span class="score">(Score: 0.54)</span> <span class="changes"><span class="additions">+24</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/oti/j9nonbuilder.h</code> <span class="score">(Score: 0.79)</span> <span class="changes"><span class="additions">+3</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/oti/jclprots.h</code> <span class="score">(Score: 0.71)</span> <span class="changes"><span class="additions">+5</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/vm/intfunc.c</code> <span class="score">(Score: 0.57)</span> <span class="changes"><span class="additions">+4</span><span class="deletions">-0</span></span></li>
+<li><code>test/functional/cmdLineTests/jfr/build.xml</code> <span class="score">(Score: 0.65)</span> <span class="changes"><span class="additions">+87</span><span class="deletions">-0</span></span></li>
+<li><code>test/functional/cmdLineTests/jfr/jfr.xml</code> <span class="score">(Score: 0.71)</span> <span class="changes"><span class="additions">+33</span><span class="deletions">-0</span></span></li>
+<li><code>test/functional/cmdLineTests/jfr/metadata.blob</code> <span class="score">(Score: 0.74)</span> <span class="changes"><span class="additions">+2180</span><span class="deletions">-0</span></span></li>
+<li><code>test/functional/cmdLineTests/jfr/playlist.xml</code> <span class="score">(Score: 0.66)</span> <span class="changes"><span class="additions">+57</span><span class="deletions">-0</span></span></li>
+<li><code>test/functional/cmdLineTests/jfr/src/org/openj9/test/TriggerExecutionSample.java</code> <span class="score">(Score: 0.66)</span> <span class="changes"><span class="additions">+31</span><span class="deletions">-0</span></span></li>
+</ul>
+</td>
+</tr>
+<tr>
+<td><code>3f48ea98</code></td>
+<td>1.00</td>
+<td>Gengchen Tuo</td>
+<td>Add triggerExecutionSample native
+
+- Add JPP flag for JFR
+- Add com.ibm.oti.vm.VM::triggerExecutionS...</td>
+</tr>
+<tr>
+<td colspan="4" class="files-container">
+<h5>Modified Files:</h5>
+<ul class="file-list">
+<!-- Found 17 modified files -->
+<li><code>.gitattributes</code> <span class="score">(Score: 0.46)</span> <span class="changes"><span class="additions">+5</span><span class="deletions">-4</span></span></li>
+<li><code>jcl/jpp_configuration.xml</code> <span class="score">(Score: 0.67)</span> <span class="changes"><span class="additions">+1</span><span class="deletions">-1</span></span></li>
+<li><code>jcl/src/java.base/share/classes/com/ibm/oti/vm/VM.java</code> <span class="score">(Score: 0.76)</span> <span class="changes"><span class="additions">+7</span><span class="deletions">-0</span></span></li>
+<li><code>jcl/src/java.base/share/classes/java/lang/System.java</code> <span class="score">(Score: 0.81)</span> <span class="changes"><span class="additions">+4</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/jcl/CMakeLists.txt</code> <span class="score">(Score: 0.63)</span> <span class="changes"><span class="additions">+1</span><span class="deletions">-1</span></span></li>
+<li><code>runtime/jcl/common/com_ibm_oti_vm_VM.cpp</code> <span class="score">(Score: 0.62)</span> <span class="changes"><span class="additions">+221</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/jcl/exports.cmake</code> <span class="score">(Score: 0.58)</span> <span class="changes"><span class="additions">+6</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/jcl/module.xml</code> <span class="score">(Score: 0.55)</span> <span class="changes"><span class="additions">+4</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/jcl/uma/jfr_exports.xml</code> <span class="score">(Score: 0.54)</span> <span class="changes"><span class="additions">+24</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/oti/j9nonbuilder.h</code> <span class="score">(Score: 0.79)</span> <span class="changes"><span class="additions">+3</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/oti/jclprots.h</code> <span class="score">(Score: 0.71)</span> <span class="changes"><span class="additions">+5</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/vm/intfunc.c</code> <span class="score">(Score: 0.57)</span> <span class="changes"><span class="additions">+4</span><span class="deletions">-0</span></span></li>
+<li><code>test/functional/cmdLineTests/jfr/build.xml</code> <span class="score">(Score: 0.65)</span> <span class="changes"><span class="additions">+87</span><span class="deletions">-0</span></span></li>
+<li><code>test/functional/cmdLineTests/jfr/jfr.xml</code> <span class="score">(Score: 0.71)</span> <span class="changes"><span class="additions">+33</span><span class="deletions">-0</span></span></li>
+<li><code>test/functional/cmdLineTests/jfr/metadata.blob</code> <span class="score">(Score: 0.74)</span> <span class="changes"><span class="additions">+2180</span><span class="deletions">-0</span></span></li>
+<li><code>test/functional/cmdLineTests/jfr/playlist.xml</code> <span class="score">(Score: 0.66)</span> <span class="changes"><span class="additions">+57</span><span class="deletions">-0</span></span></li>
+<li><code>test/functional/cmdLineTests/jfr/src/org/openj9/test/TriggerExecutionSample.java</code> <span class="score">(Score: 0.66)</span> <span class="changes"><span class="additions">+31</span><span class="deletions">-0</span></span></li>
+</ul>
+</td>
+</tr>
+<tr>
+<td><code>73fd0180</code></td>
+<td>1.00</td>
+<td>Gengchen Tuo</td>
+<td>Add JVMTI VirtualThreadDestroy Event
+
+Currently destroyThreadData() is hooked onto the VirtualThread...</td>
+</tr>
+<tr>
+<td colspan="4" class="files-container">
+<h5>Modified Files:</h5>
+<ul class="file-list">
+<!-- Found 9 modified files -->
+<li><code>runtime/include/ibmjvmti.h</code> <span class="score">(Score: 0.72)</span> <span class="changes"><span class="additions">+1</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/j9vm/javanextvmi.cpp</code> <span class="score">(Score: 0.76)</span> <span class="changes"><span class="additions">+1</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/jvmti/jvmtiExtensionMechanism.c</code> <span class="score">(Score: 0.78)</span> <span class="changes"><span class="additions">+12</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/jvmti/jvmtiHelpers.cpp</code> <span class="score">(Score: 0.72)</span> <span class="changes"><span class="additions">+1</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/jvmti/jvmtiHook.c</code> <span class="score">(Score: 0.74)</span> <span class="changes"><span class="additions">+2</span><span class="deletions">-2</span></span></li>
+<li><code>runtime/nls/j9ti/jvmti.nls</code> <span class="score">(Score: 0.59)</span> <span class="changes"><span class="additions">+7</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/oti/j9consts.h</code> <span class="score">(Score: 0.72)</span> <span class="changes"><span class="additions">+1</span><span class="deletions">-1</span></span></li>
+<li><code>runtime/oti/j9vm.hdf</code> <span class="score">(Score: 0.72)</span> <span class="changes"><span class="additions">+10</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/oti/jvmtiInternal.h</code> <span class="score">(Score: 0.65)</span> <span class="changes"><span class="additions">+1</span><span class="deletions">-0</span></span></li>
+</ul>
+</td>
+</tr>
+<tr>
+<td><code>c70cb5d2</code></td>
+<td>1.00</td>
+<td>Babneet Singh</td>
+<td>Merge pull request #19855 from thallium/clear-tls-after-callback
+
+Destroy virtual thread data after ...</td>
+</tr>
+<tr>
+<td colspan="4" class="files-container">
+<h5>Modified Files:</h5>
+<ul class="file-list">
+<!-- Found 9 modified files -->
+<li><code>runtime/include/ibmjvmti.h</code> <span class="score">(Score: 0.72)</span> <span class="changes"><span class="additions">+1</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/j9vm/javanextvmi.cpp</code> <span class="score">(Score: 0.76)</span> <span class="changes"><span class="additions">+1</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/jvmti/jvmtiExtensionMechanism.c</code> <span class="score">(Score: 0.78)</span> <span class="changes"><span class="additions">+12</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/jvmti/jvmtiHelpers.cpp</code> <span class="score">(Score: 0.72)</span> <span class="changes"><span class="additions">+1</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/jvmti/jvmtiHook.c</code> <span class="score">(Score: 0.74)</span> <span class="changes"><span class="additions">+2</span><span class="deletions">-2</span></span></li>
+<li><code>runtime/nls/j9ti/jvmti.nls</code> <span class="score">(Score: 0.59)</span> <span class="changes"><span class="additions">+7</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/oti/j9consts.h</code> <span class="score">(Score: 0.72)</span> <span class="changes"><span class="additions">+1</span><span class="deletions">-1</span></span></li>
+<li><code>runtime/oti/j9vm.hdf</code> <span class="score">(Score: 0.72)</span> <span class="changes"><span class="additions">+10</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/oti/jvmtiInternal.h</code> <span class="score">(Score: 0.65)</span> <span class="changes"><span class="additions">+1</span><span class="deletions">-0</span></span></li>
+</ul>
+</td>
+</tr>
+<tr>
+<td><code>c0c18a98</code></td>
+<td>1.00</td>
+<td>Marius Pirvu</td>
+<td>Merge pull request #19847 from cjjdespres/send-cached-hash
+
+Send cached J9ROMClass hashes to JITServ...</td>
+</tr>
+<tr>
+<td colspan="4" class="files-container">
+<h5>Modified Files:</h5>
+<ul class="file-list">
+<!-- Found 9 modified files -->
+<li><code>runtime/compiler/control/JITServerCompilationThread.cpp</code> <span class="score">(Score: 0.78)</span> <span class="changes"><span class="additions">+1</span><span class="deletions">-1</span></span></li>
+<li><code>runtime/compiler/control/JITServerHelpers.cpp</code> <span class="score">(Score: 0.74)</span> <span class="changes"><span class="additions">+17</span><span class="deletions">-8</span></span></li>
+<li><code>runtime/compiler/control/JITServerHelpers.hpp</code> <span class="score">(Score: 0.54)</span> <span class="changes"><span class="additions">+3</span><span class="deletions">-2</span></span></li>
+<li><code>runtime/compiler/net/CommunicationStream.hpp</code> <span class="score">(Score: 0.65)</span> <span class="changes"><span class="additions">+1</span><span class="deletions">-1</span></span></li>
+<li><code>runtime/compiler/runtime/JITServerAOTCache.cpp</code> <span class="score">(Score: 0.73)</span> <span class="changes"><span class="additions">+38</span><span class="deletions">-26</span></span></li>
+<li><code>runtime/compiler/runtime/JITServerAOTDeserializer.cpp</code> <span class="score">(Score: 0.77)</span> <span class="changes"><span class="additions">+21</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/compiler/runtime/JITServerAOTDeserializer.hpp</code> <span class="score">(Score: 0.76)</span> <span class="changes"><span class="additions">+2</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/compiler/runtime/JITServerSharedROMClassCache.cpp</code> <span class="score">(Score: 0.65)</span> <span class="changes"><span class="additions">+2</span><span class="deletions">-2</span></span></li>
+<li><code>runtime/compiler/runtime/JITServerSharedROMClassCache.hpp</code> <span class="score">(Score: 0.53)</span> <span class="changes"><span class="additions">+3</span><span class="deletions">-1</span></span></li>
+</ul>
+</td>
+</tr>
+<tr>
+<td><code>3a50aeb2</code></td>
+<td>1.00</td>
+<td>Christian Despres</td>
+<td>Send cached J9ROMClass hashes to JITServer
+
+If a JITServer client has a cached hash for a ROMClass, ...</td>
+</tr>
+<tr>
+<td colspan="4" class="files-container">
+<h5>Modified Files:</h5>
+<ul class="file-list">
+<!-- Found 9 modified files -->
+<li><code>runtime/compiler/control/JITServerCompilationThread.cpp</code> <span class="score">(Score: 0.78)</span> <span class="changes"><span class="additions">+1</span><span class="deletions">-1</span></span></li>
+<li><code>runtime/compiler/control/JITServerHelpers.cpp</code> <span class="score">(Score: 0.74)</span> <span class="changes"><span class="additions">+17</span><span class="deletions">-8</span></span></li>
+<li><code>runtime/compiler/control/JITServerHelpers.hpp</code> <span class="score">(Score: 0.54)</span> <span class="changes"><span class="additions">+3</span><span class="deletions">-2</span></span></li>
+<li><code>runtime/compiler/net/CommunicationStream.hpp</code> <span class="score">(Score: 0.65)</span> <span class="changes"><span class="additions">+1</span><span class="deletions">-1</span></span></li>
+<li><code>runtime/compiler/runtime/JITServerAOTCache.cpp</code> <span class="score">(Score: 0.73)</span> <span class="changes"><span class="additions">+38</span><span class="deletions">-26</span></span></li>
+<li><code>runtime/compiler/runtime/JITServerAOTDeserializer.cpp</code> <span class="score">(Score: 0.77)</span> <span class="changes"><span class="additions">+21</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/compiler/runtime/JITServerAOTDeserializer.hpp</code> <span class="score">(Score: 0.76)</span> <span class="changes"><span class="additions">+2</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/compiler/runtime/JITServerSharedROMClassCache.cpp</code> <span class="score">(Score: 0.65)</span> <span class="changes"><span class="additions">+2</span><span class="deletions">-2</span></span></li>
+<li><code>runtime/compiler/runtime/JITServerSharedROMClassCache.hpp</code> <span class="score">(Score: 0.53)</span> <span class="changes"><span class="additions">+3</span><span class="deletions">-1</span></span></li>
+</ul>
+</td>
+</tr>
+<tr>
+<td><code>c5b3b092</code></td>
+<td>0.99</td>
+<td>Rahil Shah</td>
+<td>Merge pull request #19926 from zl-wang/master
+
+Change to use isOffheapAllocationEnabled query...</td>
+</tr>
+<tr>
+<td colspan="4" class="files-container">
+<h5>Modified Files:</h5>
+<ul class="file-list">
+<!-- Found 5 modified files -->
+<li><code>runtime/compiler/aarch64/codegen/J9TreeEvaluator.cpp</code> <span class="score">(Score: 0.78)</span> <span class="changes"><span class="additions">+1</span><span class="deletions">-1</span></span></li>
+<li><code>runtime/compiler/env/VMJ9.cpp</code> <span class="score">(Score: 0.81)</span> <span class="changes"><span class="additions">+1</span><span class="deletions">-1</span></span></li>
+<li><code>runtime/compiler/p/codegen/J9TreeEvaluator.cpp</code> <span class="score">(Score: 0.77)</span> <span class="changes"><span class="additions">+1</span><span class="deletions">-1</span></span></li>
+<li><code>runtime/compiler/x/codegen/J9TreeEvaluator.cpp</code> <span class="score">(Score: 0.78)</span> <span class="changes"><span class="additions">+7</span><span class="deletions">-7</span></span></li>
+<li><code>runtime/compiler/z/codegen/J9TreeEvaluator.cpp</code> <span class="score">(Score: 0.79)</span> <span class="changes"><span class="additions">+7</span><span class="deletions">-7</span></span></li>
+</ul>
+</td>
+</tr>
+<tr>
+<td><code>8e7895ff</code></td>
+<td>0.99</td>
+<td>Julian</td>
+<td>Change to use isOffheapAllocationEnabled query
+wherever it is appropriate (and intended), isIndexabl...</td>
+</tr>
+<tr>
+<td colspan="4" class="files-container">
+<h5>Modified Files:</h5>
+<ul class="file-list">
+<!-- Found 5 modified files -->
+<li><code>runtime/compiler/aarch64/codegen/J9TreeEvaluator.cpp</code> <span class="score">(Score: 0.78)</span> <span class="changes"><span class="additions">+1</span><span class="deletions">-1</span></span></li>
+<li><code>runtime/compiler/env/VMJ9.cpp</code> <span class="score">(Score: 0.81)</span> <span class="changes"><span class="additions">+1</span><span class="deletions">-1</span></span></li>
+<li><code>runtime/compiler/p/codegen/J9TreeEvaluator.cpp</code> <span class="score">(Score: 0.77)</span> <span class="changes"><span class="additions">+1</span><span class="deletions">-1</span></span></li>
+<li><code>runtime/compiler/x/codegen/J9TreeEvaluator.cpp</code> <span class="score">(Score: 0.78)</span> <span class="changes"><span class="additions">+7</span><span class="deletions">-7</span></span></li>
+<li><code>runtime/compiler/z/codegen/J9TreeEvaluator.cpp</code> <span class="score">(Score: 0.79)</span> <span class="changes"><span class="additions">+7</span><span class="deletions">-7</span></span></li>
+</ul>
+</td>
+</tr>
+<tr>
+<td><code>0362cb32</code></td>
+<td>0.98</td>
+<td>Lan Xia</td>
+<td>Merge pull request #19918 from LongyuZhang/thread1
+
+Extract Thread Test to JDK 22 and under...</td>
+</tr>
+<tr>
+<td colspan="4" class="files-container">
+<h5>Modified Files:</h5>
+<ul class="file-list">
+<!-- Found 5 modified files -->
+<li><code>test/functional/Java8andUp/build.xml</code> <span class="score">(Score: 0.79)</span> <span class="changes"><span class="additions">+25</span><span class="deletions">-2</span></span></li>
+<li><code>test/functional/Java8andUp/playlist.xml</code> <span class="score">(Score: 0.81)</span> <span class="changes"><span class="additions">+49</span><span class="deletions">-0</span></span></li>
+<li><code>test/functional/Java8andUp/testng.xml</code> <span class="score">(Score: 0.78)</span> <span class="changes"><span class="additions">+0</span><span class="deletions">-2</span></span></li>
+<li><code>test/functional/Java8andUp/testng_thread.xml</code> <span class="score">(Score: 0.65)</span> <span class="changes"><span class="additions">+37</span><span class="deletions">-0</span></span></li>
+<li><code>test/functional/cmdLineTests/jvmtitests/build.xml</code> <span class="score">(Score: 0.76)</span> <span class="changes"><span class="additions">+32</span><span class="deletions">-11</span></span></li>
+</ul>
+</td>
+</tr>
+<tr>
+<td><code>01f287ca</code></td>
+<td>0.98</td>
+<td>LongyuZhang</td>
+<td>Extract Thread Test to JDK 22 and under
+- Thread functions are removed for JDK 23, extract test to J...</td>
+</tr>
+<tr>
+<td colspan="4" class="files-container">
+<h5>Modified Files:</h5>
+<ul class="file-list">
+<!-- Found 5 modified files -->
+<li><code>test/functional/Java8andUp/build.xml</code> <span class="score">(Score: 0.79)</span> <span class="changes"><span class="additions">+25</span><span class="deletions">-2</span></span></li>
+<li><code>test/functional/Java8andUp/playlist.xml</code> <span class="score">(Score: 0.81)</span> <span class="changes"><span class="additions">+49</span><span class="deletions">-0</span></span></li>
+<li><code>test/functional/Java8andUp/testng.xml</code> <span class="score">(Score: 0.78)</span> <span class="changes"><span class="additions">+0</span><span class="deletions">-2</span></span></li>
+<li><code>test/functional/Java8andUp/testng_thread.xml</code> <span class="score">(Score: 0.65)</span> <span class="changes"><span class="additions">+37</span><span class="deletions">-0</span></span></li>
+<li><code>test/functional/cmdLineTests/jvmtitests/build.xml</code> <span class="score">(Score: 0.76)</span> <span class="changes"><span class="additions">+32</span><span class="deletions">-11</span></span></li>
+</ul>
+</td>
+</tr>
+<tr>
+<td><code>7affcea2</code></td>
+<td>0.98</td>
+<td>Keith W. Campbell</td>
+<td>Merge pull request #19895 from theresa-m/maxclassname
+
+Enforce maximum name size during class loadin...</td>
+</tr>
+<tr>
+<td colspan="4" class="files-container">
+<h5>Modified Files:</h5>
+<ul class="file-list">
+<!-- Found 5 modified files -->
+<li><code>runtime/j9vm/j7vmi.c</code> <span class="score">(Score: 0.79)</span> <span class="changes"><span class="additions">+19</span><span class="deletions">-1</span></span></li>
+<li><code>runtime/jcl/common/jcldefine.c</code> <span class="score">(Score: 0.66)</span> <span class="changes"><span class="additions">+16</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/nls/j9vm/j9vm.nls</code> <span class="score">(Score: 0.77)</span> <span class="changes"><span class="additions">+7</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/oti/j9nonbuilder.h</code> <span class="score">(Score: 0.79)</span> <span class="changes"><span class="additions">+4</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/vm/classsupport.c</code> <span class="score">(Score: 0.78)</span> <span class="changes"><span class="additions">+15</span><span class="deletions">-1</span></span></li>
+</ul>
+</td>
+</tr>
+<tr>
+<td><code>323b8b99</code></td>
+<td>0.98</td>
+<td>Theresa Mammarella</td>
+<td>Enforce maximum name size during class loading
+
+Class names are stored as a UTF8 string and length i...</td>
+</tr>
+<tr>
+<td colspan="4" class="files-container">
+<h5>Modified Files:</h5>
+<ul class="file-list">
+<!-- Found 5 modified files -->
+<li><code>runtime/j9vm/j7vmi.c</code> <span class="score">(Score: 0.79)</span> <span class="changes"><span class="additions">+19</span><span class="deletions">-1</span></span></li>
+<li><code>runtime/jcl/common/jcldefine.c</code> <span class="score">(Score: 0.66)</span> <span class="changes"><span class="additions">+16</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/nls/j9vm/j9vm.nls</code> <span class="score">(Score: 0.77)</span> <span class="changes"><span class="additions">+7</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/oti/j9nonbuilder.h</code> <span class="score">(Score: 0.79)</span> <span class="changes"><span class="additions">+4</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/vm/classsupport.c</code> <span class="score">(Score: 0.78)</span> <span class="changes"><span class="additions">+15</span><span class="deletions">-1</span></span></li>
+</ul>
+</td>
+</tr>
+<tr>
+<td><code>d98e1e5c</code></td>
+<td>0.96</td>
+<td>Tobi</td>
+<td>Merge pull request #19805 from fengxue-IS/enhance-profiling
+
+Refactor Continuation cache profiling...</td>
+</tr>
+<tr>
+<td colspan="4" class="files-container">
+<h5>Modified Files:</h5>
+<ul class="file-list">
+<!-- Found 4 modified files -->
+<li><code>runtime/oti/j9consts.h</code> <span class="score">(Score: 0.72)</span> <span class="changes"><span class="additions">+1</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/oti/j9nonbuilder.h</code> <span class="score">(Score: 0.79)</span> <span class="changes"><span class="additions">+6</span><span class="deletions">-1</span></span></li>
+<li><code>runtime/vm/ContinuationHelpers.cpp</code> <span class="score">(Score: 0.69)</span> <span class="changes"><span class="additions">+4</span><span class="deletions">-4</span></span></li>
+<li><code>runtime/vm/jvminit.c</code> <span class="score">(Score: 0.79)</span> <span class="changes"><span class="additions">+43</span><span class="deletions">-14</span></span></li>
+</ul>
+</td>
+</tr>
+<tr>
+<td><code>0076e93a</code></td>
+<td>0.96</td>
+<td>Jack Lu</td>
+<td>Refactor Continuation cache profiling
+
+- Add runtime option to JVM for reporting cache usage
+- Repor...</td>
+</tr>
+<tr>
+<td colspan="4" class="files-container">
+<h5>Modified Files:</h5>
+<ul class="file-list">
+<!-- Found 4 modified files -->
+<li><code>runtime/oti/j9consts.h</code> <span class="score">(Score: 0.72)</span> <span class="changes"><span class="additions">+1</span><span class="deletions">-0</span></span></li>
+<li><code>runtime/oti/j9nonbuilder.h</code> <span class="score">(Score: 0.79)</span> <span class="changes"><span class="additions">+6</span><span class="deletions">-1</span></span></li>
+<li><code>runtime/vm/ContinuationHelpers.cpp</code> <span class="score">(Score: 0.69)</span> <span class="changes"><span class="additions">+4</span><span class="deletions">-4</span></span></li>
+<li><code>runtime/vm/jvminit.c</code> <span class="score">(Score: 0.79)</span> <span class="changes"><span class="additions">+43</span><span class="deletions">-14</span></span></li>
+</ul>
+</td>
+</tr>
+</table>
+</body></html>
