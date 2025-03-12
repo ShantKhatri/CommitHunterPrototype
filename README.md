@@ -88,6 +88,13 @@ CommitHunter/
 └── requirements.txt             # Dependencies
 ```
 
+## 🛠 Processing Flow
+
+Below is a visual representation of the sequential processing flow:
+
+![Processing Flow](docs/Sequential_Processing_Flow_Diagram.png)
+
+
 ## ⚙️ Configuration
 
 Edit `config/config.yaml` to customize:
