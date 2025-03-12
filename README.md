@@ -38,8 +38,14 @@ pip install -r requirements.txt
 
 ## 🎯 Usage
 
-### Basic Command
+### Basic Command (Sample commits and versions provided)
 
+#### For light run and between good and bad commits
+```bash
+python src\main.py --repo https://github.com/eclipse/openj9 --good "96ef5c5b4026552ec5d6f0413d034cf09ba7103f" --bad "eac681f0cee21af67657f575a366590b937a2a13" --output ./reports/openj9_results.html --report-format html --verbos
+```
+
+#### For Normal/High run and between two versions (for all commits in the last version)
 ```bash
 python src/main.py --repo https://github.com/eclipse/openj9 --good openj9-0.38.0 --bad openj9-0.39.0 --output ./reports/analysis.html --report-format html --verbose
 ```
