@@ -1477,3 +1477,281 @@ class TestCollector:
         except Exception as e:
             self.logger.warning(f"Error getting test result for commit {commit_hash}: {str(e)}")
             return None
+
+    def analyze_openj9_test_failure(self, test_name: str, error_message: str, good_sha: str, bad_sha: str) -> Dict[str, Any]:
+        """
+        Analyze OpenJ9 test failures to extract relevant information for commit classification.
+        
+        Args:
+            test_name: Name of the failing test
+            error_message: Error message from the test failure
+            good_sha: SHA of the commit where tests pass
+            bad_sha: SHA of the commit where tests fail
+            
+        Returns:
+            Dictionary with analysis results and keywords for matching commits
+        """
+        self.logger.info(f"Analyzing OpenJ9 test failure: {test_name}")
+        
+        analysis = {
+            "test_name": test_name,
+            "error_message": error_message,
+            "good_sha": good_sha,
+            "bad_sha": bad_sha,
+            "keywords": set(),
+            "components": set(),
+            "affected_files": set(),
+            "jvm_specific": False,
+            "classification_features": {}
+        }
+        
+        if re.search(r'(JVMJ9|OpenJ9|JIT|GC|JVM)', error_message):
+            analysis["jvm_specific"] = True
+            
+        gc_match = re.search(r'GC(\d+)', error_message)
+        if gc_match:
+            analysis["components"].add("gc")
+            analysis["keywords"].add(f"GC{gc_match.group(1)}")
+            
+        jit_match = re.search(r'JIT\s*(compiler|optimization|codegen)', error_message, re.IGNORECASE)
+        if jit_match:
+            analysis["components"].add("jit")
+            analysis["keywords"].add("jit")
+            analysis["keywords"].add(jit_match.group(1).lower())
+            
+        thread_match = re.search(r'(thread|deadlock|race\s*condition|synchronization)', error_message, re.IGNORECASE)
+        if thread_match:
+            analysis["components"].add("thread")
+            analysis["keywords"].add(thread_match.group(1).lower())
+            
+        class_matches = re.findall(r'([A-Z][a-zA-Z0-9_]+)\.([a-zA-Z0-9_]+)', error_message)
+        for class_name, method_name in class_matches:
+            analysis["keywords"].add(class_name)
+            if len(method_name) > 3 and not method_name.lower() in self.stopwords:
+                analysis["keywords"].add(method_name)
+        
+        file_matches = re.findall(r'(?:at|in|from)\s+([a-zA-Z0-9_/.\\-]+\.(?:c|cpp|java|h|hpp))', error_message)
+        for file_path in file_matches:
+            file_name = os.path.basename(file_path)
+            analysis["affected_files"].add(file_name)
+            if '/' in file_path:
+                component = file_path.split('/')[0]
+                analysis["components"].add(component)
+        
+        analysis["classification_features"] = {
+            "has_assertion_failure": 1 if re.search(r'assert(ion)?\s+failed', error_message, re.IGNORECASE) else 0,
+            "has_segmentation_fault": 1 if re.search(r'segmentation\s+fault|sigsegv', error_message, re.IGNORECASE) else 0,
+            "has_null_pointer": 1 if re.search(r'null\s+pointer', error_message, re.IGNORECASE) else 0,
+            "has_class_loading_issue": 1 if re.search(r'class\s+loading|classloader|noclassdef', error_message, re.IGNORECASE) else 0,
+            "has_memory_issue": 1 if re.search(r'out\s+of\s+memory|memor(y|ies)\s+leak', error_message, re.IGNORECASE) else 0,
+            "is_jit_related": 1 if analysis["components"] and "jit" in analysis["components"] else 0,
+            "is_gc_related": 1 if analysis["components"] and "gc" in analysis["components"] else 0,
+            "has_precise_file_reference": 1 if analysis["affected_files"] else 0
+        }
+        
+        analysis["keywords"] = list(analysis["keywords"])
+        analysis["components"] = list(analysis["components"])
+        analysis["affected_files"] = list(analysis["affected_files"])
+        
+        return analysis
+
+    def classify_commit_for_test_failure(self, commit_info: Dict[str, Any], 
+                                        test_failure: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Classify a commit as "Likely Problematic" or "Safe" based on test failure analysis.
+        
+        Args:
+            commit_info: Dictionary with commit information
+            test_failure: Dictionary with test failure analysis from analyze_openj9_test_failure
+            
+        Returns:
+            Dictionary with classification results
+        """
+        self.logger.info(f"Classifying commit {commit_info.get('hash', '')[:8]} for test failure")
+        
+        score = 0.0
+        reasons = []
+        
+        # Get commit data
+        commit_message = commit_info.get('message', '').lower()
+        commit_files = [os.path.basename(f) for f in commit_info.get('files_changed', [])]
+        author = commit_info.get('author_name', commit_info.get('author', ''))
+        
+        keyword_matches = 0
+        for keyword in test_failure.get('keywords', []):
+            if keyword.lower() in commit_message:
+                keyword_matches += 1
+                reasons.append(f"Keyword '{keyword}' found in commit message")
+        
+        if keyword_matches > 0:
+            score += min(0.3, keyword_matches * 0.1)  # Up to 0.3 for keywords
+        
+        file_matches = 0
+        for file_name in test_failure.get('affected_files', []):
+            if file_name in commit_files:
+                file_matches += 1
+                reasons.append(f"Modified file '{file_name}' appears in test failure")
+        
+        if file_matches > 0:
+            score += min(0.4, file_matches * 0.2)  # Up to 0.4 for file matches
+        
+        component_matches = 0
+        commit_components = set()
+        for file_path in commit_info.get('files_changed', []):
+            if '/' in file_path:
+                commit_components.add(file_path.split('/')[0])
+        
+        for component in test_failure.get('components', []):
+            if component in commit_components:
+                component_matches += 1
+                reasons.append(f"Modified component '{component}' matches test failure")
+        
+        if component_matches > 0:
+            score += min(0.3, component_matches * 0.15)  # Up to 0.3 for component matches
+        
+        if re.search(r'fix(?:ed|ing)?\s+(?:build|compile|warning)', commit_message):
+            score -= 0.1
+            reasons.append("Commit appears to be fixing build or compile issues")
+        
+        classification = {
+            "commit_hash": commit_info.get('hash', ''),
+            "score": score,
+            "reasons": reasons,
+            "classification": "Likely Problematic" if score >= 0.4 else "Safe",
+            "confidence": score if score >= 0.4 else 1.0 - score
+        }
+        
+        return classification
+
+    def process_openj9_issue(self, issue_number: str, good_sha: str, bad_sha: str, 
+                            git_collector) -> Dict[str, Any]:
+        """
+        Process an OpenJ9 issue to classify commits between good and bad SHAs.
+        
+        Args:
+            issue_number: OpenJ9 issue number
+            good_sha: SHA of the commit where tests pass
+            bad_sha: SHA of the commit where tests fail
+            git_collector: GitCollector instance to get commit information
+            
+        Returns:
+            Dictionary with analysis results and classified commits
+        """
+        self.logger.info(f"Processing OpenJ9 issue #{issue_number} between {good_sha[:8]} and {bad_sha[:8]}")
+        
+        test_result = self.get_test_result_for_commit(bad_sha)
+        if not test_result:
+            test_result = {
+                "error_message": f"Unknown failure in issue #{issue_number}",
+                "test_name": "unknown"
+            }
+        
+        failure_analysis = self.analyze_openj9_test_failure(
+            test_result.get("test_name", "unknown"),
+            test_result.get("error_message", "Unknown error"),
+            good_sha,
+            bad_sha
+        )
+        
+        commits = git_collector.get_commits_between(good_sha, bad_sha)
+        
+        classified_commits = []
+        for commit in commits:
+            commit_info = git_collector.get_commit_info(commit['hash'])
+            classification = self.classify_commit_for_test_failure(commit_info, failure_analysis)
+            classified_commits.append(classification)
+        
+        classified_commits.sort(key=lambda x: x['score'], reverse=True)
+        
+        likely_problematic = [c for c in classified_commits if c['classification'] == "Likely Problematic"]
+        safe_commits = [c for c in classified_commits if c['classification'] == "Safe"]
+        
+        return {
+            "issue": issue_number,
+            "good_sha": good_sha,
+            "bad_sha": bad_sha,
+            "failure_analysis": failure_analysis,
+            "classified_commits": classified_commits,
+            "likely_problematic_count": len(likely_problematic),
+            "safe_count": len(safe_commits),
+            "top_suspect": likely_problematic[0] if likely_problematic else None
+        }
+
+    def extract_openj9_specific_errors(self, error_message: str) -> Dict[str, Any]:
+        """
+        Extract OpenJ9-specific error patterns from error messages.
+        
+        Args:
+            error_message: Error message from test failure
+            
+        Returns:
+            Dictionary with extracted OpenJ9-specific error information
+        """
+        openj9_patterns = {
+            "jit_failures": [
+                r'JIT\s+compilation\s+failed',
+                r'AOT\s+compilation\s+failed',
+                r'Failed\s+to\s+JIT\s+compile\s+method',
+                r'JIT\s+optimization\s+level'
+            ],
+            
+            "gc_failures": [
+                r'GC\s+cycle\s+started',
+                r'concurrent\s+mark',
+                r'out\s+of\s+memory',
+                r'heap\s+exhausted',
+                r'gc\s+allocation\s+failure'
+            ],
+            
+            "class_loading_failures": [
+                r'ClassLoader',
+                r'NoClassDefFoundError',
+                r'ClassNotFoundException',
+                r'failed\s+to\s+load\s+class'
+            ],
+            
+            "threading_failures": [
+                r'deadlock\s+detected',
+                r'thread\s+dump',
+                r'timed\s+out\s+waiting',
+                r'InterruptedException'
+            ],
+            
+            "native_failures": [
+                r'JNI\s+error',
+                r'native\s+method',
+                r'native\s+crash',
+                r'SIGSEGV',
+                r'segmentation\s+fault'
+            ]
+        }
+        
+        results = {
+            "detected_patterns": {},
+            "main_category": None,
+            "error_type": "unknown"
+        }
+        
+        for category, patterns in openj9_patterns.items():
+            matches = []
+            for pattern in patterns:
+                if re.search(pattern, error_message, re.IGNORECASE):
+                    matches.append(pattern)
+            
+            if matches:
+                results["detected_patterns"][category] = matches
+        
+        if results["detected_patterns"]:
+            main_category = max(results["detected_patterns"].items(), key=lambda x: len(x[1]))
+            results["main_category"] = main_category[0]
+            
+            category_to_error = {
+                "jit_failures": "JIT Compilation Error",
+                "gc_failures": "Garbage Collection Error",
+                "class_loading_failures": "Class Loading Error",
+                "threading_failures": "Threading Issue",
+                "native_failures": "Native Code Failure"
+            }
+            results["error_type"] = category_to_error.get(main_category[0], "Unknown Error")
+        
+        return results

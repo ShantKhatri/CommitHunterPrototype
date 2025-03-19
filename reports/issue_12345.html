@@ -1,0 +1,1051 @@
+<html><head>
+<title>CommitHunter Analysis Report</title>
+
+        <style>
+            /* Base styles */
+            body { 
+                font-family: Arial, sans-serif; 
+                margin: 20px; 
+                color: #333;
+                line-height: 1.6;
+            }
+            code { font-family: Consolas, monospace; }
+            pre { 
+                white-space: pre-wrap; 
+                background-color: #f5f5f5; 
+                padding: 10px; 
+                border-radius: 4px; 
+                overflow: auto;
+                max-height: 400px;
+            }
+            .error { color: #d9534f; }
+            h1, h2, h3, h4, h5, h6 { 
+                margin-top: 1em;
+                margin-bottom: 0.5em;
+                font-weight: 600;
+                color: #333;
+            }
+            h4 { margin: 5px 0; }
+            ul { margin: 5px 0; }
+            
+            /* Table styling */
+            .commit-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 20px 0;
+            }
+            
+            .commit-table th {
+                background-color: #f2f2f2;
+                text-align: left;
+                padding: 8px;
+                border: 1px solid #ddd;
+            }
+            
+            .commit-table td {
+                padding: 8px;
+                border: 1px solid #ddd;
+                vertical-align: top;
+            }
+            
+            .files-container {
+                background-color: #f9f9f9;
+            }
+            
+            .file-list {
+                list-style: none;
+                padding: 0 15px;
+                margin: 5px 0;
+                max-height: 300px;
+                overflow-y: auto;
+                display: block !important;
+            }
+            
+            .file-list li {
+                padding: 3px 0;
+                margin: 2px 0;
+                border-bottom: 1px solid #eee;
+                display: block !important;
+            }
+            
+            .file-list li code {
+                display: inline-block;
+                word-break: break-all;
+            }
+            
+            .score {
+                color: #0066cc;
+                font-weight: bold;
+            }
+            
+            .changes {
+                float: right;
+                font-family: monospace;
+            }
+            
+            .additions {
+                color: green;
+                margin-right: 5px;
+            }
+            
+            .deletions {
+                color: red;
+            }
+            
+            .error-message-box {
+                background-color: #fff3cd;
+                border-left: 4px solid #ffc107;
+                padding: 10px;
+                margin: 15px 0;
+            }
+            
+            /* Binary search styles */
+            
+    .binary-search {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 5px;
+        margin: 20px 0;
+    }
+    
+    .result-summary {
+        background: #e9ecef;
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+    
+    .bad-commit {
+        border-left: 4px solid #dc3545;
+        padding-left: 15px;
+        margin: 15px 0;
+    }
+    
+    .commit-message {
+        background: #fff;
+        padding: 10px;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        white-space: pre-wrap;
+    }
+    
+    .modified-files {
+        list-style: none;
+        padding-left: 0;
+    }
+    
+    .modified-files li {
+        padding: 5px 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .search-history table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+    }
+    
+    .search-history th,
+    .search-history td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .search-history .pass { color: #28a745; }
+    .search-history .fail { color: #dc3545; }
+    
+    .performance-impact {
+        background: #fff3cd;
+        padding: 15px;
+        border-radius: 4px;
+        margin-top: 20px;
+    }
+    
+            
+            /* Classification styles */
+            
+    .commit-classification {
+        margin: 20px 0;
+        padding: 15px;
+    }
+    
+    .classification-summary {
+        background-color: #f8f9fa;
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+    }
+    
+    .classification-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+    }
+    
+    .classification-table th {
+        background-color: #f2f2f2;
+        padding: 8px;
+        text-align: left;
+        border: 1px solid #ddd;
+    }
+    
+    .classification-table td {
+        padding: 8px;
+        border: 1px solid #ddd;
+    }
+    
+    .classification-table tr.problematic {
+        background-color: #fff0f0;
+    }
+    
+    .classification-table tr.safe {
+        background-color: #f0fff0;
+    }
+    
+        </style>
+        
+</head><body>
+<h1>CommitHunter Analysis Report</h1>
+<h2>Analysis Parameters</h2>
+<ul>
+<li>Good Commit: 96ef5c5b4026552ec5d6f0413d034cf09ba7103f</li>
+<li>Bad Commit: eac681f0cee21af67657f575a366590b937a2a13</li>
+<li>Test Name: None</li>
+</ul>
+<div class="commit-classification">
+<h2>Commit Classification Results</h2>
+<div class="classification-summary">
+<p><strong>Total Commits Analyzed:</strong> 103</p>
+<p><strong>Likely Problematic:</strong> 0 (0.0%)</p>
+<p><strong>Safe:</strong> 103 (100.0%)</p>
+</div>
+<table class="classification-table">
+<tr><th>Commit</th><th>Classification</th><th>Confidence</th><th>Author</th><th>Message</th><th>Reasons</th></tr>
+<tr class="safe">
+<td>96ef5c5b</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>7c8005e1</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>8d929fec</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>2845176f</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>a0b34799</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>27dac39d</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>def4a30a</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>c2af1fed</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>18c16409</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>00d08779</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>51128c1d</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>4fc9a456</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>a6363210</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>5b6168a9</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>0b32a259</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>9a15c735</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>07797d6f</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>90ac2bf1</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>abdb2aa8</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>a5c3757b</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>9574f689</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>2cfd7244</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>6c5f2b35</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>ad9620c3</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>c792e991</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>ae0b2371</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>71f9ccfc</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>a3a09742</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>860fd146</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>70aac1f2</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>bd018c01</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>3b3874e2</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>17894a56</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>3f48ea98</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>0362cb32</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>dd27fc0d</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>48f557e4</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>c5b3b092</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>d98e1e5c</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>97d0bb70</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>4d506fd4</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>8e7895ff</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>01f287ca</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>487b005e</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>5dbfd876</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>8805cc27</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>b6760a14</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>e4bf5c1e</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>3f3d51f3</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>9142f7eb</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>f3d33e83</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>d65b5fe5</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>d776a4a4</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>876f013c</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>157a0ef2</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>40c65378</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>b4719f8d</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>eac4b61c</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>200b783f</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>badec667</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>9d601051</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>0076e93a</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>5e3816d3</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>4cffe9c3</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>d1aaa914</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>7a309afe</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>313a00c9</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>ff51db6a</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>1ed9c082</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>312c8246</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>015b58dd</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>7affcea2</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>95a69485</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>323b8b99</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>3be60c0a</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>4ce1a43f</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>08e67ec7</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>5b2a0713</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>881038df</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>aeef1385</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>865b5754</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>ab58e586</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>8ef7ddb4</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>b14cd71e</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>b2674c2d</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>79f9d1c6</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>fba3bfe9</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>ab1ec9a1</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>679e1830</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>129082fe</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>c0c18a98</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>b20800d7</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>4b9cac2d</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>deb57b93</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>c70cb5d2</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>3a50aeb2</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>04930aa4</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>73fd0180</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>2a1ae31e</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>2e4a0701</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>0ba67381</td>
+<td>Safe</td>
+<td>1.00</td>
+<td>Unknown</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="safe">
+<td>578e8369</td>
+<td>Safe</td>
+<td>1.10</td>
+<td>Unknown</td>
+<td></td>
+<td>Commit appears to be fixing build or compile issues</td>
+</tr>
+<tr class="safe">
+<td>c2723578</td>
+<td>Safe</td>
+<td>1.10</td>
+<td>Unknown</td>
+<td></td>
+<td>Commit appears to be fixing build or compile issues</td>
+</tr>
+</table>
+</div>
+</body></html>

@@ -82,6 +82,26 @@ class Config:
             "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
             "max_size": 10485760,  # 10MB
             "backup_count": 5
+        },
+        "openj9": {
+            "issue_url_pattern": "https://github.com/eclipse-openj9/openj9/issues/{issue_number}",
+            "risk_thresholds": {
+                "high": 0.7,
+                "medium": 0.4
+            },
+            "test_patterns": {
+                "system_tests": ["systemtest", "system-test"],
+                "functional_tests": ["functional", "fvtest"],
+                "perf_tests": ["performance", "throughput", "footprint"]
+            },
+            "component_mapping": {
+                "jit": ["jit_", "compiler", "codegen"],
+                "gc": ["gc_", "mm_"],
+                "thread": ["thread_", "j9thread"],
+                "classloader": ["classloader", "bootstrap"],
+                "interpreter": ["interp_"],
+                "runtime": ["runtime", "vm_"]
+            }
         }
     }
     

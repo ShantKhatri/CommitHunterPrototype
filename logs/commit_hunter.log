@@ -7991,3 +7991,691 @@ NameError: name 'results' is not defined
 2025-03-13 01:13:13,835 - analyzers.string_matcher - INFO - Found suspicious commit 73fd0180 with score 1.00 (9 files changed)
 2025-03-13 01:13:14,333 - main - INFO - Results written to ./reports/openj9_results.html
 2025-03-13 01:13:14,334 - main - INFO - CommitHunter completed successfully
+2025-03-13 01:58:52,346 - root - INFO - Logging system initialized
+2025-03-13 01:58:52,348 - main - INFO - Starting CommitHunter
+2025-03-13 01:58:52,348 - main - INFO - Repository: https://github.com/eclipse/openj9
+2025-03-13 01:58:52,349 - main - INFO - Good commit: 96ef5c5b4026552ec5d6f0413d034cf09ba7103f
+2025-03-13 01:58:52,350 - main - INFO - Bad commit: eac681f0cee21af67657f575a366590b937a2a13
+2025-03-13 01:58:52,351 - main - INFO - No test results directory specified, creating sample test results
+2025-03-13 01:58:52,357 - collectors.git_collector - INFO - Using existing repository at C:\Users\prash\ML_Projects\CommitHunterPrototype\.git_cache\openj9
+2025-03-13 01:58:52,360 - collectors.git_collector - INFO - Fetching latest changes and tags...
+2025-03-13 01:58:54,847 - collectors.git_collector - INFO - Available tags (127): openj9-0.0M1, openj9-0.0RC2, openj9-0.0, openj9-0.8.0, openj9-0.9.0...
+2025-03-13 01:58:54,847 - collectors.git_collector - INFO - Successfully initialized repository
+2025-03-13 01:58:54,850 - collectors.test_collector - INFO - Test collector initialized for test-results
+2025-03-13 01:58:54,850 - analyzers.string_matcher - INFO - String matcher initialized with 23 suspicious patterns
+2025-03-13 01:58:54,852 - analyzers.perf_analyzer - INFO - Performance analyzer initialized
+2025-03-13 01:58:54,852 - main - WARNING - BinarySearchAnalyzer requires a test name. Use --test-name to specify a test.
+2025-03-13 01:58:54,853 - main - INFO - Binary search will be skipped.
+2025-03-13 01:58:54,853 - main - INFO - Testing test result extraction
+2025-03-13 01:58:54,854 - collectors.test_collector - INFO - Getting test results for all tests
+2025-03-13 01:58:54,855 - collectors.test_collector - INFO - Looking for test result files in test-results
+2025-03-13 01:58:54,856 - collectors.test_collector - INFO - Found 1 files matching pattern **/*.xml
+2025-03-13 01:58:54,857 - collectors.test_collector - INFO - Found 0 files matching pattern **/*.json
+2025-03-13 01:58:54,859 - collectors.test_collector - INFO - Found 0 files matching pattern **/*.txt
+2025-03-13 01:58:54,859 - collectors.test_collector - INFO - Found test result file: test-results\junit-results.xml
+2025-03-13 01:58:54,861 - collectors.test_collector - INFO - Parsing JUnit XML file: test-results\junit-results.xml
+2025-03-13 01:58:54,864 - collectors.test_collector - INFO - Extracted error: Cannot invoke "org.openj9.IProfiler.getResult()" because "profiler" is null
+2025-03-13 01:58:54,865 - collectors.test_collector - INFO - Extracted failure: Expected value was 42 but got null
+2025-03-13 01:58:54,866 - collectors.test_collector - INFO - Parsed test result: junit-results.xml with 0 tests
+2025-03-13 01:58:54,867 - collectors.test_collector - INFO - Collected 1 test result sets in 0.01 seconds
+2025-03-13 01:58:54,868 - main - INFO - Found test results: {
+  "test_name": "unknown",
+  "status": "failed",
+  "error_message": "Cannot invoke \"org.openj9.IProfiler.getResult()\" because \"profiler\" is null: at org.openj9.TestProfiler.testMethod(TestProfiler.java:45)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)",
+  "error_type": "",
+  "stack_trace": "",
+  "failure_summary": {
+    "exceptions": [],
+    "assertion_failures": [],
+    "error_messages": [
+      "Cannot invoke \"org.openj9.IProfiler.getResult()\" because \"profiler\" is null: at org.openj9.TestProfiler.testMethod(TestProfiler.java:45)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)",
+      "Expected value was 42 but got null: at com.example.TestClass.testFailure(TestClass.java:123)\n    at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)\n    at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)"
+    ],
+    "stack_traces": [],
+    "file_references": [],
+    "components": [],
+    "most_common_errors": {}
+  },
+  "file_references": [],
+  "components": [],
+  "timestamp": "2025-03-13T01:58:54.868416"
+}
+2025-03-13 01:58:54,873 - main - INFO - Extracted error message: Cannot invoke "org.openj9.IProfiler.getResult()" because "profiler" is null: at org.openj9.TestProfiler.testMethod(TestProfiler.java:45)
+    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+2025-03-13 01:58:54,874 - collectors.test_collector - INFO - Getting test results for all tests
+2025-03-13 01:58:54,875 - collectors.test_collector - INFO - Looking for test result files in test-results
+2025-03-13 01:58:54,876 - collectors.test_collector - INFO - Found 1 files matching pattern **/*.xml
+2025-03-13 01:58:54,877 - collectors.test_collector - INFO - Found 0 files matching pattern **/*.json
+2025-03-13 01:58:54,879 - collectors.test_collector - INFO - Found 0 files matching pattern **/*.txt
+2025-03-13 01:58:54,880 - collectors.test_collector - INFO - Found test result file: test-results\junit-results.xml
+2025-03-13 01:58:54,882 - collectors.test_collector - INFO - Parsed test result: junit-results.xml with 0 tests
+2025-03-13 01:58:54,883 - collectors.test_collector - INFO - Collected 1 test result sets in 0.01 seconds
+2025-03-13 01:58:54,885 - __main__ - INFO - Found test results: {
+  "test_name": "unknown",
+  "status": "failed",
+  "error_message": "Cannot invoke \"org.openj9.IProfiler.getResult()\" because \"profiler\" is null: at org.openj9.TestProfiler.testMethod(TestProfiler.java:45)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)",
+  "error_type": "",
+  "stack_trace": "",
+  "failure_summary": {
+    "exceptions": [],
+    "assertion_failures": [],
+    "error_messages": [
+      "Cannot invoke \"org.openj9.IProfiler.getResult()\" because \"profiler\" is null: at org.openj9.TestProfiler.testMethod(TestProfiler.java:45)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)",
+      "Expected value was 42 but got null: at com.example.TestClass.testFailure(TestClass.java:123)\n    at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)\n    at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)"
+    ],
+    "stack_traces": [],
+    "file_references": [],
+    "components": [],
+    "most_common_errors": {}
+  },
+  "file_references": [],
+  "components": [],
+  "timestamp": "2025-03-13T01:58:54.885544"
+}
+2025-03-13 01:58:54,889 - __main__ - INFO - Running string matcher analysis
+2025-03-13 01:58:54,890 - __main__ - INFO - No problematic commit identified, using full commit range for string matcher
+2025-03-13 01:58:54,891 - analyzers.string_matcher - INFO - Finding suspicious commits between 96ef5c5b4026552ec5d6f0413d034cf09ba7103f and eac681f0cee21af67657f575a366590b937a2a13
+2025-03-13 01:58:54,891 - analyzers.string_matcher - INFO - Processing error message (326 chars): Cannot invoke "org.openj9.IProfiler.getResult()" because "profiler" is null: at org.openj9.TestProfi...
+2025-03-13 01:58:54,893 - analyzers.string_matcher - INFO - Extracted 13 keywords: NativeMethodAccessorImpl, invoke0, testMethod, internal, profiler, TestProfiler, because, IProfiler, Cannot, getResult, reflect, base, openj9
+2025-03-13 01:58:55,163 - analyzers.string_matcher - INFO - Using 19 keywords: NativeMethodAccessorImpl, invoke0, testMethod, internal, profiler, TestProfiler, because, IProfiler, Cannot, getResult...
+2025-03-13 01:58:55,164 - collectors.git_collector - INFO - Getting commits between 96ef5c5b4026552ec5d6f0413d034cf09ba7103f and eac681f0cee21af67657f575a366590b937a2a13
+2025-03-13 01:58:55,165 - collectors.git_collector - INFO - Analyzing commits from eac681f0cee21af67657f575a366590b937a2a13 to 96ef5c5b4026552ec5d6f0413d034cf09ba7103f
+2025-03-13 01:59:14,411 - collectors.git_collector - INFO - Found 103 commits
+2025-03-13 01:59:14,411 - analyzers.string_matcher - INFO - Analyzing 103 commits
+2025-03-13 01:59:20,791 - analyzers.string_matcher - INFO - Found suspicious commit a3a09742 with score 1.00 (17 files changed)
+2025-03-13 01:59:22,870 - analyzers.string_matcher - INFO - Found suspicious commit 3f48ea98 with score 1.00 (17 files changed)
+2025-03-13 01:59:23,269 - analyzers.string_matcher - INFO - Found suspicious commit 0362cb32 with score 0.98 (5 files changed)
+2025-03-13 01:59:24,476 - analyzers.string_matcher - INFO - Found suspicious commit c5b3b092 with score 0.99 (5 files changed)
+2025-03-13 01:59:24,920 - analyzers.string_matcher - INFO - Found suspicious commit d98e1e5c with score 0.96 (4 files changed)
+2025-03-13 01:59:25,940 - analyzers.string_matcher - INFO - Found suspicious commit 8e7895ff with score 0.99 (5 files changed)
+2025-03-13 01:59:26,296 - analyzers.string_matcher - INFO - Found suspicious commit 01f287ca with score 0.98 (5 files changed)
+2025-03-13 01:59:30,014 - analyzers.string_matcher - INFO - Found suspicious commit 0076e93a with score 0.96 (4 files changed)
+2025-03-13 01:59:32,250 - analyzers.string_matcher - INFO - Found suspicious commit 7affcea2 with score 0.98 (5 files changed)
+2025-03-13 01:59:32,987 - analyzers.string_matcher - INFO - Found suspicious commit 323b8b99 with score 0.98 (5 files changed)
+2025-03-13 01:59:35,878 - analyzers.string_matcher - INFO - Found suspicious commit c0c18a98 with score 1.00 (9 files changed)
+2025-03-13 01:59:37,102 - analyzers.string_matcher - INFO - Found suspicious commit c70cb5d2 with score 1.00 (9 files changed)
+2025-03-13 01:59:37,815 - analyzers.string_matcher - INFO - Found suspicious commit 3a50aeb2 with score 1.00 (9 files changed)
+2025-03-13 01:59:38,610 - analyzers.string_matcher - INFO - Found suspicious commit 73fd0180 with score 1.00 (9 files changed)
+2025-03-13 01:59:39,159 - main - INFO - Results written to ./reports/openj9_results.html
+2025-03-13 01:59:39,159 - main - INFO - CommitHunter completed successfully
+2025-03-14 17:14:41,027 - root - INFO - Logging system initialized
+2025-03-14 17:14:41,027 - main - INFO - Starting CommitHunter
+2025-03-14 17:14:41,027 - main - INFO - Repository: https://github.com/eclipse-openj9/openj9
+2025-03-14 17:14:41,031 - main - INFO - Good commit: 96ef5c5b4026552ec5d6f0413d034cf09ba7103f
+2025-03-14 17:14:41,031 - main - INFO - Bad commit: eac681f0cee21af67657f575a366590b937a2a13
+2025-03-14 17:16:10,735 - root - INFO - Logging system initialized
+2025-03-14 17:16:10,739 - main - INFO - Starting CommitHunter
+2025-03-14 17:16:10,739 - main - INFO - Repository: https://github.com/eclipse-openj9/openj9
+2025-03-14 17:16:10,739 - main - INFO - Good commit: 96ef5c5b4026552ec5d6f0413d034cf09ba7103f
+2025-03-14 17:16:10,740 - main - INFO - Bad commit: eac681f0cee21af67657f575a366590b937a2a13
+2025-03-14 17:16:10,740 - main - INFO - No test results directory specified, creating sample test results
+2025-03-14 17:16:12,256 - collectors.test_collector - INFO - Test collector initialized for test-results
+2025-03-14 17:16:13,297 - analyzers.string_matcher - INFO - String matcher initialized with 23 suspicious patterns
+2025-03-14 17:16:13,297 - analyzers.perf_analyzer - INFO - Performance analyzer initialized
+2025-03-14 17:16:13,301 - main - WARNING - BinarySearchAnalyzer requires a test name. Use --test-name to specify a test.
+2025-03-14 17:16:13,302 - main - INFO - Binary search will be skipped.
+2025-03-14 17:16:13,302 - main - INFO - Testing test result extraction
+2025-03-14 17:16:13,302 - collectors.test_collector - INFO - Getting test results for all tests
+2025-03-14 17:16:13,302 - collectors.test_collector - INFO - Looking for test result files in test-results
+2025-03-14 17:16:13,302 - collectors.test_collector - INFO - Found 1 files matching pattern **/*.xml
+2025-03-14 17:16:13,305 - collectors.test_collector - INFO - Found 0 files matching pattern **/*.json
+2025-03-14 17:16:13,305 - collectors.test_collector - INFO - Found 0 files matching pattern **/*.txt
+2025-03-14 17:16:13,305 - collectors.test_collector - INFO - Found test result file: test-results\junit-results.xml
+2025-03-14 17:16:13,305 - collectors.test_collector - INFO - Parsing JUnit XML file: test-results\junit-results.xml
+2025-03-14 17:16:13,309 - collectors.test_collector - INFO - Extracted error: Cannot invoke "org.openj9.IProfiler.getResult()" because "profiler" is null
+2025-03-14 17:16:13,309 - collectors.test_collector - INFO - Extracted failure: Expected value was 42 but got null
+2025-03-14 17:16:13,309 - collectors.test_collector - INFO - Parsed test result: junit-results.xml with 0 tests
+2025-03-14 17:16:13,309 - collectors.test_collector - INFO - Collected 1 test result sets in 0.01 seconds
+2025-03-14 17:16:13,313 - main - INFO - Found test results: {
+  "test_name": "unknown",
+  "status": "failed",
+  "error_message": "Cannot invoke \"org.openj9.IProfiler.getResult()\" because \"profiler\" is null: at org.openj9.TestProfiler.testMethod(TestProfiler.java:45)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)",
+  "error_type": "",
+  "stack_trace": "",
+  "failure_summary": {
+    "exceptions": [],
+    "assertion_failures": [],
+    "error_messages": [
+      "Cannot invoke \"org.openj9.IProfiler.getResult()\" because \"profiler\" is null: at org.openj9.TestProfiler.testMethod(TestProfiler.java:45)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)",
+      "Expected value was 42 but got null: at com.example.TestClass.testFailure(TestClass.java:123)\n    at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)\n    at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)"
+    ],
+    "stack_traces": [],
+    "file_references": [],
+    "components": [],
+    "most_common_errors": {}
+  },
+  "file_references": [],
+  "components": [],
+  "timestamp": "2025-03-14T17:16:13.309502"
+}
+2025-03-14 17:16:13,313 - main - INFO - Extracted error message: Cannot invoke "org.openj9.IProfiler.getResult()" because "profiler" is null: at org.openj9.TestProfiler.testMethod(TestProfiler.java:45)
+    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+2025-03-14 17:16:13,313 - main - INFO - Using OpenJ9-specific analysis
+2025-03-14 17:16:13,317 - collectors.test_collector - INFO - Getting test results for all tests
+2025-03-14 17:16:13,317 - collectors.test_collector - INFO - Looking for test result files in test-results
+2025-03-14 17:16:13,317 - collectors.test_collector - INFO - Found 1 files matching pattern **/*.xml
+2025-03-14 17:16:13,317 - collectors.test_collector - INFO - Found 0 files matching pattern **/*.json
+2025-03-14 17:16:13,317 - collectors.test_collector - INFO - Found 0 files matching pattern **/*.txt
+2025-03-14 17:16:13,321 - collectors.test_collector - INFO - Found test result file: test-results\junit-results.xml
+2025-03-14 17:16:13,321 - collectors.test_collector - INFO - Parsed test result: junit-results.xml with 0 tests
+2025-03-14 17:16:13,321 - collectors.test_collector - INFO - Collected 1 test result sets in 0.00 seconds
+2025-03-14 17:16:13,321 - __main__ - INFO - Found test results: {
+  "test_name": "unknown",
+  "status": "failed",
+  "error_message": "Cannot invoke \"org.openj9.IProfiler.getResult()\" because \"profiler\" is null: at org.openj9.TestProfiler.testMethod(TestProfiler.java:45)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)",
+  "error_type": "",
+  "stack_trace": "",
+  "failure_summary": {
+    "exceptions": [],
+    "assertion_failures": [],
+    "error_messages": [
+      "Cannot invoke \"org.openj9.IProfiler.getResult()\" because \"profiler\" is null: at org.openj9.TestProfiler.testMethod(TestProfiler.java:45)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)",
+      "Expected value was 42 but got null: at com.example.TestClass.testFailure(TestClass.java:123)\n    at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)\n    at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)"
+    ],
+    "stack_traces": [],
+    "file_references": [],
+    "components": [],
+    "most_common_errors": {}
+  },
+  "file_references": [],
+  "components": [],
+  "timestamp": "2025-03-14T17:16:13.321511"
+}
+2025-03-14 17:16:13,325 - __main__ - INFO - Running string matcher analysis
+2025-03-14 17:16:13,325 - __main__ - INFO - No problematic commit identified, using full commit range for string matcher
+2025-03-14 17:16:13,325 - analyzers.string_matcher - INFO - Finding suspicious commits between 96ef5c5b4026552ec5d6f0413d034cf09ba7103f and eac681f0cee21af67657f575a366590b937a2a13
+2025-03-14 17:16:13,329 - analyzers.string_matcher - INFO - Processing error message (326 chars): Cannot invoke "org.openj9.IProfiler.getResult()" because "profiler" is null: at org.openj9.TestProfi...
+2025-03-14 17:16:13,552 - analyzers.string_matcher - INFO - Using 26 keywords: java, org, openj9, testprofil, nativemethodaccessorimpl, invok, testmethod, base, jdk, intern...
+2025-03-14 17:16:13,552 - analyzers.string_matcher - ERROR - Error in commit analysis: 'GitCollector' object has no attribute 'get_commits_between'
+2025-03-14 17:16:13,552 - analyzers.perf_analyzer - INFO - Analyzing OpenJ9 performance between 96ef5c5b and eac681f0
+2025-03-14 17:16:13,552 - analyzers.perf_analyzer - ERROR - Error collecting metrics for commit 96ef5c5b4026552ec5d6f0413d034cf09ba7103f: 'GitCollector' object has no attribute 'checkout_commit'
+2025-03-14 17:16:13,552 - analyzers.perf_analyzer - ERROR - Error collecting metrics for commit eac681f0cee21af67657f575a366590b937a2a13: 'GitCollector' object has no attribute 'checkout_commit'
+2025-03-14 17:16:13,552 - main - ERROR - Error in CommitHunter
+Traceback (most recent call last):
+  File "C:\Users\prash\ML_Projects\CommitHunterPrototype\src\main.py", line 1104, in main
+    perf_results = analyzer.analyze_openj9_performance(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\prash\ML_Projects\CommitHunterPrototype\src\analyzers\perf_analyzer.py", line 562, in analyze_openj9_performance
+    commits = self.git_collector.get_commits_between(good_commit, bad_commit)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'GitCollector' object has no attribute 'get_commits_between'
+2025-03-14 17:19:43,310 - root - INFO - Logging system initialized
+2025-03-14 17:19:43,310 - main - INFO - Starting CommitHunter
+2025-03-14 17:19:43,310 - main - INFO - Repository: https://github.com/eclipse-openj9/openj9
+2025-03-14 17:19:43,310 - main - INFO - Good commit: 96ef5c5b4026552ec5d6f0413d034cf09ba7103f
+2025-03-14 17:19:43,310 - main - INFO - Bad commit: eac681f0cee21af67657f575a366590b937a2a13
+2025-03-14 17:19:43,310 - main - INFO - No test results directory specified, creating sample test results
+2025-03-14 17:19:45,076 - collectors.test_collector - INFO - Test collector initialized for test-results
+2025-03-14 17:19:45,080 - analyzers.string_matcher - INFO - String matcher initialized with 23 suspicious patterns
+2025-03-14 17:19:45,080 - analyzers.perf_analyzer - INFO - Performance analyzer initialized
+2025-03-14 17:19:45,080 - main - WARNING - BinarySearchAnalyzer requires a test name. Use --test-name to specify a test.
+2025-03-14 17:19:45,080 - main - INFO - Binary search will be skipped.
+2025-03-14 17:19:45,080 - main - INFO - Testing test result extraction
+2025-03-14 17:19:45,080 - collectors.test_collector - INFO - Getting test results for all tests
+2025-03-14 17:19:45,080 - collectors.test_collector - INFO - Looking for test result files in test-results
+2025-03-14 17:19:45,084 - collectors.test_collector - INFO - Found 1 files matching pattern **/*.xml
+2025-03-14 17:19:45,085 - collectors.test_collector - INFO - Found 0 files matching pattern **/*.json
+2025-03-14 17:19:45,085 - collectors.test_collector - INFO - Found 0 files matching pattern **/*.txt
+2025-03-14 17:19:45,085 - collectors.test_collector - INFO - Found test result file: test-results\junit-results.xml
+2025-03-14 17:19:45,088 - collectors.test_collector - INFO - Parsing JUnit XML file: test-results\junit-results.xml
+2025-03-14 17:19:45,088 - collectors.test_collector - INFO - Extracted error: Cannot invoke "org.openj9.IProfiler.getResult()" because "profiler" is null
+2025-03-14 17:19:45,088 - collectors.test_collector - INFO - Extracted failure: Expected value was 42 but got null
+2025-03-14 17:19:45,088 - collectors.test_collector - INFO - Parsed test result: junit-results.xml with 0 tests
+2025-03-14 17:19:45,088 - collectors.test_collector - INFO - Collected 1 test result sets in 0.01 seconds
+2025-03-14 17:19:45,092 - main - INFO - Found test results: {
+  "test_name": "unknown",
+  "status": "failed",
+  "error_message": "Cannot invoke \"org.openj9.IProfiler.getResult()\" because \"profiler\" is null: at org.openj9.TestProfiler.testMethod(TestProfiler.java:45)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)",
+  "error_type": "",
+  "stack_trace": "",
+  "failure_summary": {
+    "exceptions": [],
+    "assertion_failures": [],
+    "error_messages": [
+      "Cannot invoke \"org.openj9.IProfiler.getResult()\" because \"profiler\" is null: at org.openj9.TestProfiler.testMethod(TestProfiler.java:45)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)",
+      "Expected value was 42 but got null: at com.example.TestClass.testFailure(TestClass.java:123)\n    at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)\n    at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)"
+    ],
+    "stack_traces": [],
+    "file_references": [],
+    "components": [],
+    "most_common_errors": {}
+  },
+  "file_references": [],
+  "components": [],
+  "timestamp": "2025-03-14T17:19:45.088154"
+}
+2025-03-14 17:19:45,092 - main - INFO - Extracted error message: Cannot invoke "org.openj9.IProfiler.getResult()" because "profiler" is null: at org.openj9.TestProfiler.testMethod(TestProfiler.java:45)
+    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+2025-03-14 17:19:45,092 - main - INFO - Using OpenJ9-specific analysis
+2025-03-14 17:19:45,092 - collectors.test_collector - INFO - Getting test results for all tests
+2025-03-14 17:19:45,096 - collectors.test_collector - INFO - Looking for test result files in test-results
+2025-03-14 17:19:45,098 - collectors.test_collector - INFO - Found 1 files matching pattern **/*.xml
+2025-03-14 17:19:45,098 - collectors.test_collector - INFO - Found 0 files matching pattern **/*.json
+2025-03-14 17:19:45,100 - collectors.test_collector - INFO - Found 0 files matching pattern **/*.txt
+2025-03-14 17:19:45,100 - collectors.test_collector - INFO - Found test result file: test-results\junit-results.xml
+2025-03-14 17:19:45,100 - collectors.test_collector - INFO - Parsed test result: junit-results.xml with 0 tests
+2025-03-14 17:19:45,100 - collectors.test_collector - INFO - Collected 1 test result sets in 0.00 seconds
+2025-03-14 17:19:45,100 - __main__ - INFO - Found test results: {
+  "test_name": "unknown",
+  "status": "failed",
+  "error_message": "Cannot invoke \"org.openj9.IProfiler.getResult()\" because \"profiler\" is null: at org.openj9.TestProfiler.testMethod(TestProfiler.java:45)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)",
+  "error_type": "",
+  "stack_trace": "",
+  "failure_summary": {
+    "exceptions": [],
+    "assertion_failures": [],
+    "error_messages": [
+      "Cannot invoke \"org.openj9.IProfiler.getResult()\" because \"profiler\" is null: at org.openj9.TestProfiler.testMethod(TestProfiler.java:45)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)",
+      "Expected value was 42 but got null: at com.example.TestClass.testFailure(TestClass.java:123)\n    at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)\n    at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)"
+    ],
+    "stack_traces": [],
+    "file_references": [],
+    "components": [],
+    "most_common_errors": {}
+  },
+  "file_references": [],
+  "components": [],
+  "timestamp": "2025-03-14T17:19:45.100591"
+}
+2025-03-14 17:19:45,106 - __main__ - INFO - Running string matcher analysis
+2025-03-14 17:19:45,106 - __main__ - INFO - No problematic commit identified, using full commit range for string matcher
+2025-03-14 17:19:45,108 - analyzers.string_matcher - INFO - Finding suspicious commits between 96ef5c5b4026552ec5d6f0413d034cf09ba7103f and eac681f0cee21af67657f575a366590b937a2a13
+2025-03-14 17:19:45,108 - analyzers.string_matcher - INFO - Processing error message (326 chars): Cannot invoke "org.openj9.IProfiler.getResult()" because "profiler" is null: at org.openj9.TestProfi...
+2025-03-14 17:19:45,406 - analyzers.string_matcher - INFO - Using 26 keywords: java, org, openj9, testprofil, nativemethodaccessorimpl, invok, testmethod, base, jdk, intern...
+2025-03-14 17:19:45,410 - analyzers.string_matcher - ERROR - Error in commit analysis: 'GitCollector' object has no attribute 'logger'
+2025-03-14 17:19:45,410 - analyzers.perf_analyzer - INFO - Analyzing OpenJ9 performance between 96ef5c5b and eac681f0
+2025-03-14 17:19:45,410 - analyzers.perf_analyzer - ERROR - Error collecting metrics for commit 96ef5c5b4026552ec5d6f0413d034cf09ba7103f: 'GitCollector' object has no attribute 'logger'
+2025-03-14 17:19:45,412 - analyzers.perf_analyzer - ERROR - Error collecting metrics for commit eac681f0cee21af67657f575a366590b937a2a13: 'GitCollector' object has no attribute 'logger'
+2025-03-14 17:19:45,412 - main - ERROR - Error in CommitHunter
+Traceback (most recent call last):
+  File "C:\Users\prash\ML_Projects\CommitHunterPrototype\src\main.py", line 1104, in main
+    perf_results = analyzer.analyze_openj9_performance(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\prash\ML_Projects\CommitHunterPrototype\src\analyzers\perf_analyzer.py", line 562, in analyze_openj9_performance
+    commits = self.git_collector.get_commits_between(good_commit, bad_commit)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\prash\ML_Projects\CommitHunterPrototype\src\collectors\git_collector.py", line 385, in get_commits_between
+    self.logger.info(f"Getting commits between {start_ref} and {end_ref}")
+    ^^^^^^^^^^^
+AttributeError: 'GitCollector' object has no attribute 'logger'
+2025-03-14 17:20:12,693 - root - INFO - Logging system initialized
+2025-03-14 17:20:12,693 - main - INFO - Starting CommitHunter
+2025-03-14 17:20:12,697 - main - INFO - Repository: https://github.com/eclipse-openj9/openj9
+2025-03-14 17:20:12,697 - main - INFO - Good commit: 96ef5c5b4026552ec5d6f0413d034cf09ba7103f
+2025-03-14 17:20:12,697 - main - INFO - Bad commit: eac681f0cee21af67657f575a366590b937a2a13
+2025-03-14 17:20:12,697 - main - INFO - No test results directory specified, creating sample test results
+2025-03-14 17:20:13,872 - collectors.test_collector - INFO - Test collector initialized for test-results
+2025-03-14 17:20:13,876 - analyzers.string_matcher - INFO - String matcher initialized with 23 suspicious patterns
+2025-03-14 17:20:13,876 - analyzers.perf_analyzer - INFO - Performance analyzer initialized
+2025-03-14 17:20:13,877 - main - WARNING - BinarySearchAnalyzer requires a test name. Use --test-name to specify a test.
+2025-03-14 17:20:13,878 - main - INFO - Binary search will be skipped.
+2025-03-14 17:20:13,878 - main - INFO - Testing test result extraction
+2025-03-14 17:20:13,878 - collectors.test_collector - INFO - Getting test results for all tests
+2025-03-14 17:20:13,878 - collectors.test_collector - INFO - Looking for test result files in test-results
+2025-03-14 17:20:13,880 - collectors.test_collector - INFO - Found 1 files matching pattern **/*.xml
+2025-03-14 17:20:13,881 - collectors.test_collector - INFO - Found 0 files matching pattern **/*.json
+2025-03-14 17:20:13,882 - collectors.test_collector - INFO - Found 0 files matching pattern **/*.txt
+2025-03-14 17:20:13,883 - collectors.test_collector - INFO - Found test result file: test-results\junit-results.xml
+2025-03-14 17:20:13,885 - collectors.test_collector - INFO - Parsing JUnit XML file: test-results\junit-results.xml
+2025-03-14 17:20:13,885 - collectors.test_collector - INFO - Extracted error: Cannot invoke "org.openj9.IProfiler.getResult()" because "profiler" is null
+2025-03-14 17:20:13,887 - collectors.test_collector - INFO - Extracted failure: Expected value was 42 but got null
+2025-03-14 17:20:13,887 - collectors.test_collector - INFO - Parsed test result: junit-results.xml with 0 tests
+2025-03-14 17:20:13,889 - collectors.test_collector - INFO - Collected 1 test result sets in 0.01 seconds
+2025-03-14 17:20:13,889 - main - INFO - Found test results: {
+  "test_name": "unknown",
+  "status": "failed",
+  "error_message": "Cannot invoke \"org.openj9.IProfiler.getResult()\" because \"profiler\" is null: at org.openj9.TestProfiler.testMethod(TestProfiler.java:45)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)",
+  "error_type": "",
+  "stack_trace": "",
+  "failure_summary": {
+    "exceptions": [],
+    "assertion_failures": [],
+    "error_messages": [
+      "Cannot invoke \"org.openj9.IProfiler.getResult()\" because \"profiler\" is null: at org.openj9.TestProfiler.testMethod(TestProfiler.java:45)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)",
+      "Expected value was 42 but got null: at com.example.TestClass.testFailure(TestClass.java:123)\n    at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)\n    at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)"
+    ],
+    "stack_traces": [],
+    "file_references": [],
+    "components": [],
+    "most_common_errors": {}
+  },
+  "file_references": [],
+  "components": [],
+  "timestamp": "2025-03-14T17:20:13.889295"
+}
+2025-03-14 17:20:13,893 - main - INFO - Extracted error message: Cannot invoke "org.openj9.IProfiler.getResult()" because "profiler" is null: at org.openj9.TestProfiler.testMethod(TestProfiler.java:45)
+    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+2025-03-14 17:20:13,893 - main - INFO - Using OpenJ9-specific analysis
+2025-03-14 17:20:13,897 - collectors.test_collector - INFO - Getting test results for all tests
+2025-03-14 17:20:13,897 - collectors.test_collector - INFO - Looking for test result files in test-results
+2025-03-14 17:20:13,901 - collectors.test_collector - INFO - Found 1 files matching pattern **/*.xml
+2025-03-14 17:20:13,909 - collectors.test_collector - INFO - Found 0 files matching pattern **/*.json
+2025-03-14 17:20:13,909 - collectors.test_collector - INFO - Found 0 files matching pattern **/*.txt
+2025-03-14 17:20:13,909 - collectors.test_collector - INFO - Found test result file: test-results\junit-results.xml
+2025-03-14 17:20:13,913 - collectors.test_collector - INFO - Parsed test result: junit-results.xml with 0 tests
+2025-03-14 17:20:13,914 - collectors.test_collector - INFO - Collected 1 test result sets in 0.02 seconds
+2025-03-14 17:20:13,914 - __main__ - INFO - Found test results: {
+  "test_name": "unknown",
+  "status": "failed",
+  "error_message": "Cannot invoke \"org.openj9.IProfiler.getResult()\" because \"profiler\" is null: at org.openj9.TestProfiler.testMethod(TestProfiler.java:45)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)",
+  "error_type": "",
+  "stack_trace": "",
+  "failure_summary": {
+    "exceptions": [],
+    "assertion_failures": [],
+    "error_messages": [
+      "Cannot invoke \"org.openj9.IProfiler.getResult()\" because \"profiler\" is null: at org.openj9.TestProfiler.testMethod(TestProfiler.java:45)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)",
+      "Expected value was 42 but got null: at com.example.TestClass.testFailure(TestClass.java:123)\n    at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)\n    at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)"
+    ],
+    "stack_traces": [],
+    "file_references": [],
+    "components": [],
+    "most_common_errors": {}
+  },
+  "file_references": [],
+  "components": [],
+  "timestamp": "2025-03-14T17:20:13.914829"
+}
+2025-03-14 17:20:13,915 - __main__ - INFO - Running string matcher analysis
+2025-03-14 17:20:13,915 - __main__ - INFO - No problematic commit identified, using full commit range for string matcher
+2025-03-14 17:20:13,918 - analyzers.string_matcher - INFO - Finding suspicious commits between 96ef5c5b4026552ec5d6f0413d034cf09ba7103f and eac681f0cee21af67657f575a366590b937a2a13
+2025-03-14 17:20:13,918 - analyzers.string_matcher - INFO - Processing error message (326 chars): Cannot invoke "org.openj9.IProfiler.getResult()" because "profiler" is null: at org.openj9.TestProfi...
+2025-03-14 17:20:14,125 - analyzers.string_matcher - INFO - Using 26 keywords: java, org, openj9, testprofil, nativemethodaccessorimpl, invok, testmethod, base, jdk, intern...
+2025-03-14 17:20:14,129 - collectors.git_collector - INFO - Getting commits between 96ef5c5b4026552ec5d6f0413d034cf09ba7103f and eac681f0cee21af67657f575a366590b937a2a13
+2025-03-14 17:20:14,220 - collectors.git_collector - INFO - Analyzing commits from eac681f0cee21af67657f575a366590b937a2a13 to 96ef5c5b4026552ec5d6f0413d034cf09ba7103f
+2025-03-14 17:20:30,247 - collectors.git_collector - INFO - Found 103 commits
+2025-03-14 17:20:30,247 - analyzers.string_matcher - INFO - Analyzing 103 commits
+2025-03-14 17:21:44,743 - analyzers.perf_analyzer - INFO - Analyzing OpenJ9 performance between 96ef5c5b and eac681f0
+2025-03-14 17:21:44,747 - collectors.git_collector - INFO - Checking out commit 96ef5c5b4026552ec5d6f0413d034cf09ba7103f
+2025-03-14 17:21:50,978 - collectors.git_collector - INFO - Successfully checked out commit 96ef5c5b4026552ec5d6f0413d034cf09ba7103f
+2025-03-14 17:21:50,995 - collectors.git_collector - INFO - Checking out commit eac681f0cee21af67657f575a366590b937a2a13
+2025-03-14 17:21:53,521 - collectors.git_collector - INFO - Successfully checked out commit eac681f0cee21af67657f575a366590b937a2a13
+2025-03-14 17:21:55,967 - collectors.git_collector - INFO - Getting commits between 96ef5c5b4026552ec5d6f0413d034cf09ba7103f and eac681f0cee21af67657f575a366590b937a2a13
+2025-03-14 17:21:56,140 - collectors.git_collector - INFO - Analyzing commits from eac681f0cee21af67657f575a366590b937a2a13 to 96ef5c5b4026552ec5d6f0413d034cf09ba7103f
+2025-03-14 17:22:17,279 - collectors.git_collector - INFO - Found 103 commits
+2025-03-14 17:22:17,279 - analyzers.perf_analyzer - INFO - Classifying commit 96ef5c5b for performance regression
+2025-03-14 17:22:17,349 - analyzers.perf_analyzer - INFO - Classifying commit 7c8005e1 for performance regression
+2025-03-14 17:22:17,413 - analyzers.perf_analyzer - INFO - Classifying commit 8d929fec for performance regression
+2025-03-14 17:22:17,490 - analyzers.perf_analyzer - INFO - Classifying commit 2845176f for performance regression
+2025-03-14 17:22:17,568 - analyzers.perf_analyzer - INFO - Classifying commit a0b34799 for performance regression
+2025-03-14 17:22:17,641 - analyzers.perf_analyzer - INFO - Classifying commit 27dac39d for performance regression
+2025-03-14 17:22:17,709 - analyzers.perf_analyzer - INFO - Classifying commit def4a30a for performance regression
+2025-03-14 17:22:17,783 - analyzers.perf_analyzer - INFO - Classifying commit c2af1fed for performance regression
+2025-03-14 17:22:17,917 - analyzers.perf_analyzer - INFO - Classifying commit 18c16409 for performance regression
+2025-03-14 17:22:18,003 - analyzers.perf_analyzer - INFO - Classifying commit 00d08779 for performance regression
+2025-03-14 17:22:18,076 - analyzers.perf_analyzer - INFO - Classifying commit 51128c1d for performance regression
+2025-03-14 17:22:18,137 - analyzers.perf_analyzer - INFO - Classifying commit 4fc9a456 for performance regression
+2025-03-14 17:22:18,206 - analyzers.perf_analyzer - INFO - Classifying commit a6363210 for performance regression
+2025-03-14 17:22:18,267 - analyzers.perf_analyzer - INFO - Classifying commit 5b6168a9 for performance regression
+2025-03-14 17:22:18,329 - analyzers.perf_analyzer - INFO - Classifying commit 0b32a259 for performance regression
+2025-03-14 17:22:18,391 - analyzers.perf_analyzer - INFO - Classifying commit 9a15c735 for performance regression
+2025-03-14 17:22:18,455 - analyzers.perf_analyzer - INFO - Classifying commit 07797d6f for performance regression
+2025-03-14 17:22:18,569 - analyzers.perf_analyzer - INFO - Classifying commit 90ac2bf1 for performance regression
+2025-03-14 17:22:18,667 - analyzers.perf_analyzer - INFO - Classifying commit abdb2aa8 for performance regression
+2025-03-14 17:22:18,756 - analyzers.perf_analyzer - INFO - Classifying commit a5c3757b for performance regression
+2025-03-14 17:22:19,018 - analyzers.perf_analyzer - INFO - Classifying commit 9574f689 for performance regression
+2025-03-14 17:22:19,131 - analyzers.perf_analyzer - INFO - Classifying commit 2cfd7244 for performance regression
+2025-03-14 17:22:19,211 - analyzers.perf_analyzer - INFO - Classifying commit 6c5f2b35 for performance regression
+2025-03-14 17:22:19,284 - analyzers.perf_analyzer - INFO - Classifying commit ad9620c3 for performance regression
+2025-03-14 17:22:19,345 - analyzers.perf_analyzer - INFO - Classifying commit c792e991 for performance regression
+2025-03-14 17:22:19,410 - analyzers.perf_analyzer - INFO - Classifying commit ae0b2371 for performance regression
+2025-03-14 17:22:19,475 - analyzers.perf_analyzer - INFO - Classifying commit 71f9ccfc for performance regression
+2025-03-14 17:22:19,537 - analyzers.perf_analyzer - INFO - Classifying commit a3a09742 for performance regression
+2025-03-14 17:22:19,622 - analyzers.perf_analyzer - INFO - Classifying commit 860fd146 for performance regression
+2025-03-14 17:22:19,683 - analyzers.perf_analyzer - INFO - Classifying commit 70aac1f2 for performance regression
+2025-03-14 17:22:19,744 - analyzers.perf_analyzer - INFO - Classifying commit bd018c01 for performance regression
+2025-03-14 17:22:19,804 - analyzers.perf_analyzer - INFO - Classifying commit 3b3874e2 for performance regression
+2025-03-14 17:22:19,862 - analyzers.perf_analyzer - INFO - Classifying commit 17894a56 for performance regression
+2025-03-14 17:22:19,916 - analyzers.perf_analyzer - INFO - Classifying commit 3f48ea98 for performance regression
+2025-03-14 17:22:20,001 - analyzers.perf_analyzer - INFO - Classifying commit 0362cb32 for performance regression
+2025-03-14 17:22:20,061 - analyzers.perf_analyzer - INFO - Classifying commit dd27fc0d for performance regression
+2025-03-14 17:22:20,119 - analyzers.perf_analyzer - INFO - Classifying commit 48f557e4 for performance regression
+2025-03-14 17:22:20,179 - analyzers.perf_analyzer - INFO - Classifying commit c5b3b092 for performance regression
+2025-03-14 17:22:20,255 - analyzers.perf_analyzer - INFO - Classifying commit d98e1e5c for performance regression
+2025-03-14 17:22:20,333 - analyzers.perf_analyzer - INFO - Classifying commit 97d0bb70 for performance regression
+2025-03-14 17:22:20,419 - analyzers.perf_analyzer - INFO - Classifying commit 4d506fd4 for performance regression
+2025-03-14 17:22:20,495 - analyzers.perf_analyzer - INFO - Classifying commit 8e7895ff for performance regression
+2025-03-14 17:22:20,563 - analyzers.perf_analyzer - INFO - Classifying commit 01f287ca for performance regression
+2025-03-14 17:22:20,659 - analyzers.perf_analyzer - INFO - Classifying commit 487b005e for performance regression
+2025-03-14 17:22:20,732 - analyzers.perf_analyzer - INFO - Classifying commit 5dbfd876 for performance regression
+2025-03-14 17:22:20,784 - analyzers.perf_analyzer - INFO - Classifying commit 8805cc27 for performance regression
+2025-03-14 17:22:20,836 - analyzers.perf_analyzer - INFO - Classifying commit b6760a14 for performance regression
+2025-03-14 17:22:20,884 - analyzers.perf_analyzer - INFO - Classifying commit e4bf5c1e for performance regression
+2025-03-14 17:22:20,949 - analyzers.perf_analyzer - INFO - Classifying commit 3f3d51f3 for performance regression
+2025-03-14 17:22:21,028 - analyzers.perf_analyzer - INFO - Classifying commit 9142f7eb for performance regression
+2025-03-14 17:22:21,086 - analyzers.perf_analyzer - INFO - Classifying commit f3d33e83 for performance regression
+2025-03-14 17:22:21,146 - analyzers.perf_analyzer - INFO - Classifying commit d65b5fe5 for performance regression
+2025-03-14 17:22:21,216 - analyzers.perf_analyzer - INFO - Classifying commit d776a4a4 for performance regression
+2025-03-14 17:22:21,285 - analyzers.perf_analyzer - INFO - Classifying commit 876f013c for performance regression
+2025-03-14 17:22:21,342 - analyzers.perf_analyzer - INFO - Classifying commit 157a0ef2 for performance regression
+2025-03-14 17:22:21,407 - analyzers.perf_analyzer - INFO - Classifying commit 40c65378 for performance regression
+2025-03-14 17:22:21,480 - analyzers.perf_analyzer - INFO - Classifying commit b4719f8d for performance regression
+2025-03-14 17:22:21,547 - analyzers.perf_analyzer - INFO - Classifying commit eac4b61c for performance regression
+2025-03-14 17:22:21,618 - analyzers.perf_analyzer - INFO - Classifying commit 200b783f for performance regression
+2025-03-14 17:22:21,682 - analyzers.perf_analyzer - INFO - Classifying commit badec667 for performance regression
+2025-03-14 17:22:21,745 - analyzers.perf_analyzer - INFO - Classifying commit 9d601051 for performance regression
+2025-03-14 17:22:21,802 - analyzers.perf_analyzer - INFO - Classifying commit 0076e93a for performance regression
+2025-03-14 17:22:21,860 - analyzers.perf_analyzer - INFO - Classifying commit 5e3816d3 for performance regression
+2025-03-14 17:22:21,933 - analyzers.perf_analyzer - INFO - Classifying commit 4cffe9c3 for performance regression
+2025-03-14 17:22:22,017 - analyzers.perf_analyzer - INFO - Classifying commit d1aaa914 for performance regression
+2025-03-14 17:22:22,098 - analyzers.perf_analyzer - INFO - Classifying commit 7a309afe for performance regression
+2025-03-14 17:22:22,159 - analyzers.perf_analyzer - INFO - Classifying commit 313a00c9 for performance regression
+2025-03-14 17:22:22,221 - analyzers.perf_analyzer - INFO - Classifying commit ff51db6a for performance regression
+2025-03-14 17:22:22,266 - analyzers.perf_analyzer - INFO - Classifying commit 1ed9c082 for performance regression
+2025-03-14 17:22:22,322 - analyzers.perf_analyzer - INFO - Classifying commit 312c8246 for performance regression
+2025-03-14 17:22:22,384 - analyzers.perf_analyzer - INFO - Classifying commit 015b58dd for performance regression
+2025-03-14 17:22:22,450 - analyzers.perf_analyzer - INFO - Classifying commit 7affcea2 for performance regression
+2025-03-14 17:22:22,521 - analyzers.perf_analyzer - INFO - Classifying commit 578e8369 for performance regression
+2025-03-14 17:22:22,596 - analyzers.perf_analyzer - INFO - Classifying commit 95a69485 for performance regression
+2025-03-14 17:22:22,674 - analyzers.perf_analyzer - INFO - Classifying commit c2723578 for performance regression
+2025-03-14 17:22:22,750 - analyzers.perf_analyzer - INFO - Classifying commit 323b8b99 for performance regression
+2025-03-14 17:22:22,825 - analyzers.perf_analyzer - INFO - Classifying commit 3be60c0a for performance regression
+2025-03-14 17:22:22,888 - analyzers.perf_analyzer - INFO - Classifying commit 4ce1a43f for performance regression
+2025-03-14 17:22:22,959 - analyzers.perf_analyzer - INFO - Classifying commit 08e67ec7 for performance regression
+2025-03-14 17:22:23,020 - analyzers.perf_analyzer - INFO - Classifying commit 5b2a0713 for performance regression
+2025-03-14 17:22:23,086 - analyzers.perf_analyzer - INFO - Classifying commit 881038df for performance regression
+2025-03-14 17:22:23,146 - analyzers.perf_analyzer - INFO - Classifying commit aeef1385 for performance regression
+2025-03-14 17:22:23,223 - analyzers.perf_analyzer - INFO - Classifying commit 865b5754 for performance regression
+2025-03-14 17:22:23,293 - analyzers.perf_analyzer - INFO - Classifying commit ab58e586 for performance regression
+2025-03-14 17:22:23,364 - analyzers.perf_analyzer - INFO - Classifying commit 8ef7ddb4 for performance regression
+2025-03-14 17:22:23,430 - analyzers.perf_analyzer - INFO - Classifying commit b14cd71e for performance regression
+2025-03-14 17:22:23,499 - analyzers.perf_analyzer - INFO - Classifying commit b2674c2d for performance regression
+2025-03-14 17:22:23,563 - analyzers.perf_analyzer - INFO - Classifying commit 79f9d1c6 for performance regression
+2025-03-14 17:22:23,633 - analyzers.perf_analyzer - INFO - Classifying commit fba3bfe9 for performance regression
+2025-03-14 17:22:23,709 - analyzers.perf_analyzer - INFO - Classifying commit ab1ec9a1 for performance regression
+2025-03-14 17:22:23,790 - analyzers.perf_analyzer - INFO - Classifying commit 679e1830 for performance regression
+2025-03-14 17:22:23,867 - analyzers.perf_analyzer - INFO - Classifying commit 129082fe for performance regression
+2025-03-14 17:22:23,952 - analyzers.perf_analyzer - INFO - Classifying commit c0c18a98 for performance regression
+2025-03-14 17:22:24,034 - analyzers.perf_analyzer - INFO - Classifying commit b20800d7 for performance regression
+2025-03-14 17:22:24,111 - analyzers.perf_analyzer - INFO - Classifying commit 4b9cac2d for performance regression
+2025-03-14 17:22:24,180 - analyzers.perf_analyzer - INFO - Classifying commit deb57b93 for performance regression
+2025-03-14 17:22:24,245 - analyzers.perf_analyzer - INFO - Classifying commit c70cb5d2 for performance regression
+2025-03-14 17:22:24,313 - analyzers.perf_analyzer - INFO - Classifying commit 3a50aeb2 for performance regression
+2025-03-14 17:22:24,382 - analyzers.perf_analyzer - INFO - Classifying commit 04930aa4 for performance regression
+2025-03-14 17:22:24,447 - analyzers.perf_analyzer - INFO - Classifying commit 73fd0180 for performance regression
+2025-03-14 17:22:24,521 - analyzers.perf_analyzer - INFO - Classifying commit 2a1ae31e for performance regression
+2025-03-14 17:22:24,589 - analyzers.perf_analyzer - INFO - Classifying commit 2e4a0701 for performance regression
+2025-03-14 17:22:24,654 - analyzers.perf_analyzer - INFO - Classifying commit 0ba67381 for performance regression
+2025-03-14 17:22:24,724 - main - INFO - Results written to ./reports/classification.html
+2025-03-14 17:22:24,728 - main - INFO - CommitHunter completed successfully
+2025-03-14 17:24:01,205 - root - INFO - Logging system initialized
+2025-03-14 17:24:01,205 - main - INFO - Starting CommitHunter
+2025-03-14 17:24:01,205 - main - INFO - Repository: https://github.com/eclipse-openj9/openj9
+2025-03-14 17:24:01,205 - main - INFO - Good commit: 96ef5c5b4026552ec5d6f0413d034cf09ba7103f
+2025-03-14 17:24:01,205 - main - INFO - Bad commit: eac681f0cee21af67657f575a366590b937a2a13
+2025-03-14 17:24:01,209 - main - INFO - No test results directory specified, creating sample test results
+2025-03-14 17:24:02,820 - collectors.test_collector - INFO - Test collector initialized for test-results
+2025-03-14 17:24:02,823 - analyzers.string_matcher - INFO - String matcher initialized with 23 suspicious patterns
+2025-03-14 17:24:02,823 - analyzers.perf_analyzer - INFO - Performance analyzer initialized
+2025-03-14 17:24:02,823 - main - WARNING - BinarySearchAnalyzer requires a test name. Use --test-name to specify a test.
+2025-03-14 17:24:02,823 - main - INFO - Binary search will be skipped.
+2025-03-14 17:24:02,823 - main - INFO - Testing test result extraction
+2025-03-14 17:24:02,827 - collectors.test_collector - INFO - Getting test results for all tests
+2025-03-14 17:24:02,827 - collectors.test_collector - INFO - Looking for test result files in test-results
+2025-03-14 17:24:02,829 - collectors.test_collector - INFO - Found 1 files matching pattern **/*.xml
+2025-03-14 17:24:02,830 - collectors.test_collector - INFO - Found 0 files matching pattern **/*.json
+2025-03-14 17:24:02,832 - collectors.test_collector - INFO - Found 0 files matching pattern **/*.txt
+2025-03-14 17:24:02,834 - collectors.test_collector - INFO - Found test result file: test-results\junit-results.xml
+2025-03-14 17:24:02,836 - collectors.test_collector - INFO - Parsing JUnit XML file: test-results\junit-results.xml
+2025-03-14 17:24:02,836 - collectors.test_collector - INFO - Extracted error: Cannot invoke "org.openj9.IProfiler.getResult()" because "profiler" is null
+2025-03-14 17:24:02,836 - collectors.test_collector - INFO - Extracted failure: Expected value was 42 but got null
+2025-03-14 17:24:02,840 - collectors.test_collector - INFO - Parsed test result: junit-results.xml with 0 tests
+2025-03-14 17:24:02,841 - collectors.test_collector - INFO - Collected 1 test result sets in 0.01 seconds
+2025-03-14 17:24:02,842 - main - INFO - Found test results: {
+  "test_name": "unknown",
+  "status": "failed",
+  "error_message": "Cannot invoke \"org.openj9.IProfiler.getResult()\" because \"profiler\" is null: at org.openj9.TestProfiler.testMethod(TestProfiler.java:45)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)",
+  "error_type": "",
+  "stack_trace": "",
+  "failure_summary": {
+    "exceptions": [],
+    "assertion_failures": [],
+    "error_messages": [
+      "Cannot invoke \"org.openj9.IProfiler.getResult()\" because \"profiler\" is null: at org.openj9.TestProfiler.testMethod(TestProfiler.java:45)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)",
+      "Expected value was 42 but got null: at com.example.TestClass.testFailure(TestClass.java:123)\n    at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)\n    at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)"
+    ],
+    "stack_traces": [],
+    "file_references": [],
+    "components": [],
+    "most_common_errors": {}
+  },
+  "file_references": [],
+  "components": [],
+  "timestamp": "2025-03-14T17:24:02.842688"
+}
+2025-03-14 17:24:02,844 - main - INFO - Extracted error message: Cannot invoke "org.openj9.IProfiler.getResult()" because "profiler" is null: at org.openj9.TestProfiler.testMethod(TestProfiler.java:45)
+    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+2025-03-14 17:24:02,844 - main - INFO - Using OpenJ9-specific analysis
+2025-03-14 17:24:02,844 - __main__ - INFO - Processing OpenJ9 issue between 96ef5c5b and eac681f0
+2025-03-14 17:24:02,848 - collectors.test_collector - INFO - Processing OpenJ9 issue #12345 between 96ef5c5b and eac681f0
+2025-03-14 17:24:02,849 - collectors.test_collector - INFO - Looking for test result files in test-results
+2025-03-14 17:24:02,850 - collectors.test_collector - INFO - Found 1 files matching pattern **/*.xml
+2025-03-14 17:24:02,850 - collectors.test_collector - INFO - Found 0 files matching pattern **/*.json
+2025-03-14 17:24:02,850 - collectors.test_collector - INFO - Found 0 files matching pattern **/*.txt
+2025-03-14 17:24:02,852 - collectors.test_collector - INFO - Found test result file: test-results\junit-results.xml
+2025-03-14 17:24:02,854 - collectors.test_collector - INFO - Parsed test result: junit-results.xml with 0 tests
+2025-03-14 17:24:02,855 - collectors.test_collector - INFO - Collected 1 test result sets in 0.01 seconds
+2025-03-14 17:24:02,856 - collectors.test_collector - INFO - Analyzing OpenJ9 test failure: unknown
+2025-03-14 17:24:02,861 - collectors.git_collector - INFO - Getting commits between 96ef5c5b4026552ec5d6f0413d034cf09ba7103f and eac681f0cee21af67657f575a366590b937a2a13
+2025-03-14 17:24:03,059 - collectors.git_collector - INFO - Analyzing commits from eac681f0cee21af67657f575a366590b937a2a13 to 96ef5c5b4026552ec5d6f0413d034cf09ba7103f
+2025-03-14 17:24:19,528 - collectors.git_collector - INFO - Found 103 commits
+2025-03-14 17:24:19,695 - collectors.test_collector - INFO - Classifying commit 96ef5c5b for test failure
+2025-03-14 17:24:19,858 - collectors.test_collector - INFO - Classifying commit 7c8005e1 for test failure
+2025-03-14 17:24:19,973 - collectors.test_collector - INFO - Classifying commit 8d929fec for test failure
+2025-03-14 17:24:20,100 - collectors.test_collector - INFO - Classifying commit 2845176f for test failure
+2025-03-14 17:24:20,240 - collectors.test_collector - INFO - Classifying commit a0b34799 for test failure
+2025-03-14 17:24:20,470 - collectors.test_collector - INFO - Classifying commit 27dac39d for test failure
+2025-03-14 17:24:20,651 - collectors.test_collector - INFO - Classifying commit def4a30a for test failure
+2025-03-14 17:24:20,842 - collectors.test_collector - INFO - Classifying commit c2af1fed for test failure
+2025-03-14 17:24:20,981 - collectors.test_collector - INFO - Classifying commit 18c16409 for test failure
+2025-03-14 17:24:21,139 - collectors.test_collector - INFO - Classifying commit 00d08779 for test failure
+2025-03-14 17:24:21,276 - collectors.test_collector - INFO - Classifying commit 51128c1d for test failure
+2025-03-14 17:24:21,383 - collectors.test_collector - INFO - Classifying commit 4fc9a456 for test failure
+2025-03-14 17:24:21,514 - collectors.test_collector - INFO - Classifying commit a6363210 for test failure
+2025-03-14 17:24:21,659 - collectors.test_collector - INFO - Classifying commit 5b6168a9 for test failure
+2025-03-14 17:24:21,989 - collectors.test_collector - INFO - Classifying commit 0b32a259 for test failure
+2025-03-14 17:24:22,134 - collectors.test_collector - INFO - Classifying commit 9a15c735 for test failure
+2025-03-14 17:24:22,248 - collectors.test_collector - INFO - Classifying commit 07797d6f for test failure
+2025-03-14 17:24:22,364 - collectors.test_collector - INFO - Classifying commit 90ac2bf1 for test failure
+2025-03-14 17:24:22,480 - collectors.test_collector - INFO - Classifying commit abdb2aa8 for test failure
+2025-03-14 17:24:22,604 - collectors.test_collector - INFO - Classifying commit a5c3757b for test failure
+2025-03-14 17:24:22,743 - collectors.test_collector - INFO - Classifying commit 9574f689 for test failure
+2025-03-14 17:24:22,972 - collectors.test_collector - INFO - Classifying commit 2cfd7244 for test failure
+2025-03-14 17:24:23,090 - collectors.test_collector - INFO - Classifying commit 6c5f2b35 for test failure
+2025-03-14 17:24:23,215 - collectors.test_collector - INFO - Classifying commit ad9620c3 for test failure
+2025-03-14 17:24:23,341 - collectors.test_collector - INFO - Classifying commit c792e991 for test failure
+2025-03-14 17:24:23,461 - collectors.test_collector - INFO - Classifying commit ae0b2371 for test failure
+2025-03-14 17:24:23,591 - collectors.test_collector - INFO - Classifying commit 71f9ccfc for test failure
+2025-03-14 17:24:23,711 - collectors.test_collector - INFO - Classifying commit a3a09742 for test failure
+2025-03-14 17:24:23,852 - collectors.test_collector - INFO - Classifying commit 860fd146 for test failure
+2025-03-14 17:24:23,986 - collectors.test_collector - INFO - Classifying commit 70aac1f2 for test failure
+2025-03-14 17:24:24,153 - collectors.test_collector - INFO - Classifying commit bd018c01 for test failure
+2025-03-14 17:24:24,315 - collectors.test_collector - INFO - Classifying commit 3b3874e2 for test failure
+2025-03-14 17:24:24,464 - collectors.test_collector - INFO - Classifying commit 17894a56 for test failure
+2025-03-14 17:24:24,617 - collectors.test_collector - INFO - Classifying commit 3f48ea98 for test failure
+2025-03-14 17:24:24,791 - collectors.test_collector - INFO - Classifying commit 0362cb32 for test failure
+2025-03-14 17:24:24,929 - collectors.test_collector - INFO - Classifying commit dd27fc0d for test failure
+2025-03-14 17:24:25,063 - collectors.test_collector - INFO - Classifying commit 48f557e4 for test failure
+2025-03-14 17:24:25,254 - collectors.test_collector - INFO - Classifying commit c5b3b092 for test failure
+2025-03-14 17:24:25,434 - collectors.test_collector - INFO - Classifying commit d98e1e5c for test failure
+2025-03-14 17:24:25,566 - collectors.test_collector - INFO - Classifying commit 97d0bb70 for test failure
+2025-03-14 17:24:25,704 - collectors.test_collector - INFO - Classifying commit 4d506fd4 for test failure
+2025-03-14 17:24:25,886 - collectors.test_collector - INFO - Classifying commit 8e7895ff for test failure
+2025-03-14 17:24:26,003 - collectors.test_collector - INFO - Classifying commit 01f287ca for test failure
+2025-03-14 17:24:26,146 - collectors.test_collector - INFO - Classifying commit 487b005e for test failure
+2025-03-14 17:24:26,275 - collectors.test_collector - INFO - Classifying commit 5dbfd876 for test failure
+2025-03-14 17:24:26,400 - collectors.test_collector - INFO - Classifying commit 8805cc27 for test failure
+2025-03-14 17:24:26,526 - collectors.test_collector - INFO - Classifying commit b6760a14 for test failure
+2025-03-14 17:24:26,673 - collectors.test_collector - INFO - Classifying commit e4bf5c1e for test failure
+2025-03-14 17:24:26,811 - collectors.test_collector - INFO - Classifying commit 3f3d51f3 for test failure
+2025-03-14 17:24:26,933 - collectors.test_collector - INFO - Classifying commit 9142f7eb for test failure
+2025-03-14 17:24:27,062 - collectors.test_collector - INFO - Classifying commit f3d33e83 for test failure
+2025-03-14 17:24:27,270 - collectors.test_collector - INFO - Classifying commit d65b5fe5 for test failure
+2025-03-14 17:24:27,405 - collectors.test_collector - INFO - Classifying commit d776a4a4 for test failure
+2025-03-14 17:24:27,555 - collectors.test_collector - INFO - Classifying commit 876f013c for test failure
+2025-03-14 17:24:27,678 - collectors.test_collector - INFO - Classifying commit 157a0ef2 for test failure
+2025-03-14 17:24:27,793 - collectors.test_collector - INFO - Classifying commit 40c65378 for test failure
+2025-03-14 17:24:27,924 - collectors.test_collector - INFO - Classifying commit b4719f8d for test failure
+2025-03-14 17:24:28,042 - collectors.test_collector - INFO - Classifying commit eac4b61c for test failure
+2025-03-14 17:24:28,164 - collectors.test_collector - INFO - Classifying commit 200b783f for test failure
+2025-03-14 17:24:28,298 - collectors.test_collector - INFO - Classifying commit badec667 for test failure
+2025-03-14 17:24:28,418 - collectors.test_collector - INFO - Classifying commit 9d601051 for test failure
+2025-03-14 17:24:28,549 - collectors.test_collector - INFO - Classifying commit 0076e93a for test failure
+2025-03-14 17:24:28,663 - collectors.test_collector - INFO - Classifying commit 5e3816d3 for test failure
+2025-03-14 17:24:28,786 - collectors.test_collector - INFO - Classifying commit 4cffe9c3 for test failure
+2025-03-14 17:24:28,909 - collectors.test_collector - INFO - Classifying commit d1aaa914 for test failure
+2025-03-14 17:24:29,027 - collectors.test_collector - INFO - Classifying commit 7a309afe for test failure
+2025-03-14 17:24:29,159 - collectors.test_collector - INFO - Classifying commit 313a00c9 for test failure
+2025-03-14 17:24:29,290 - collectors.test_collector - INFO - Classifying commit ff51db6a for test failure
+2025-03-14 17:24:29,417 - collectors.test_collector - INFO - Classifying commit 1ed9c082 for test failure
+2025-03-14 17:24:29,570 - collectors.test_collector - INFO - Classifying commit 312c8246 for test failure
+2025-03-14 17:24:29,708 - collectors.test_collector - INFO - Classifying commit 015b58dd for test failure
+2025-03-14 17:24:29,839 - collectors.test_collector - INFO - Classifying commit 7affcea2 for test failure
+2025-03-14 17:24:29,958 - collectors.test_collector - INFO - Classifying commit 578e8369 for test failure
+2025-03-14 17:24:30,107 - collectors.test_collector - INFO - Classifying commit 95a69485 for test failure
+2025-03-14 17:24:30,254 - collectors.test_collector - INFO - Classifying commit c2723578 for test failure
+2025-03-14 17:24:30,386 - collectors.test_collector - INFO - Classifying commit 323b8b99 for test failure
+2025-03-14 17:24:30,509 - collectors.test_collector - INFO - Classifying commit 3be60c0a for test failure
+2025-03-14 17:24:30,646 - collectors.test_collector - INFO - Classifying commit 4ce1a43f for test failure
+2025-03-14 17:24:30,772 - collectors.test_collector - INFO - Classifying commit 08e67ec7 for test failure
+2025-03-14 17:24:30,903 - collectors.test_collector - INFO - Classifying commit 5b2a0713 for test failure
+2025-03-14 17:24:31,030 - collectors.test_collector - INFO - Classifying commit 881038df for test failure
+2025-03-14 17:24:31,145 - collectors.test_collector - INFO - Classifying commit aeef1385 for test failure
+2025-03-14 17:24:31,278 - collectors.test_collector - INFO - Classifying commit 865b5754 for test failure
+2025-03-14 17:24:31,410 - collectors.test_collector - INFO - Classifying commit ab58e586 for test failure
+2025-03-14 17:24:31,535 - collectors.test_collector - INFO - Classifying commit 8ef7ddb4 for test failure
+2025-03-14 17:24:31,670 - collectors.test_collector - INFO - Classifying commit b14cd71e for test failure
+2025-03-14 17:24:31,807 - collectors.test_collector - INFO - Classifying commit b2674c2d for test failure
+2025-03-14 17:24:31,940 - collectors.test_collector - INFO - Classifying commit 79f9d1c6 for test failure
+2025-03-14 17:24:32,066 - collectors.test_collector - INFO - Classifying commit fba3bfe9 for test failure
+2025-03-14 17:24:32,199 - collectors.test_collector - INFO - Classifying commit ab1ec9a1 for test failure
+2025-03-14 17:24:32,350 - collectors.test_collector - INFO - Classifying commit 679e1830 for test failure
+2025-03-14 17:24:32,473 - collectors.test_collector - INFO - Classifying commit 129082fe for test failure
+2025-03-14 17:24:32,603 - collectors.test_collector - INFO - Classifying commit c0c18a98 for test failure
+2025-03-14 17:24:32,739 - collectors.test_collector - INFO - Classifying commit b20800d7 for test failure
+2025-03-14 17:24:32,872 - collectors.test_collector - INFO - Classifying commit 4b9cac2d for test failure
+2025-03-14 17:24:33,014 - collectors.test_collector - INFO - Classifying commit deb57b93 for test failure
+2025-03-14 17:24:33,154 - collectors.test_collector - INFO - Classifying commit c70cb5d2 for test failure
+2025-03-14 17:24:33,275 - collectors.test_collector - INFO - Classifying commit 3a50aeb2 for test failure
+2025-03-14 17:24:33,416 - collectors.test_collector - INFO - Classifying commit 04930aa4 for test failure
+2025-03-14 17:24:33,538 - collectors.test_collector - INFO - Classifying commit 73fd0180 for test failure
+2025-03-14 17:24:33,659 - collectors.test_collector - INFO - Classifying commit 2a1ae31e for test failure
+2025-03-14 17:24:33,828 - collectors.test_collector - INFO - Classifying commit 2e4a0701 for test failure
+2025-03-14 17:24:33,970 - collectors.test_collector - INFO - Classifying commit 0ba67381 for test failure
+2025-03-14 17:24:33,971 - collectors.git_collector - INFO - Getting commits between 96ef5c5b4026552ec5d6f0413d034cf09ba7103f and eac681f0cee21af67657f575a366590b937a2a13
+2025-03-14 17:24:34,079 - collectors.git_collector - INFO - Analyzing commits from eac681f0cee21af67657f575a366590b937a2a13 to 96ef5c5b4026552ec5d6f0413d034cf09ba7103f
+2025-03-14 17:24:51,429 - collectors.git_collector - INFO - Found 103 commits
+2025-03-14 17:24:51,429 - main - ERROR - Error in CommitHunter
+Traceback (most recent call last):
+  File "C:\Users\prash\ML_Projects\CommitHunterPrototype\src\main.py", line 1135, in main
+    report = generate_report(results, args.report_format)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\prash\ML_Projects\CommitHunterPrototype\src\main.py", line 685, in generate_report
+    f'<li>Good Commit: {results["metadata"]["good_commit"]}</li>',
+                        ~~~~~~~^^^^^^^^^^^^
+KeyError: 'metadata'

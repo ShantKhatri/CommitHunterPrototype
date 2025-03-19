@@ -973,10 +973,25 @@ def process_openj9_issue(args, git_collector, test_collector, analyzers, config)
     logger = logging.getLogger(__name__)
     logger.info(f"Processing OpenJ9 issue between {args.good[:8]} and {args.bad[:8]}")
     
+    issue_results = {
+        "metadata": {
+            "good_commit": args.good,
+            "bad_commit": args.bad,
+            "repository": git_collector.repo_url,
+            "start_time": datetime.now().isoformat(),
+            "issue_number": args.issue,
+            "test_name": args.test_name
+        },
+        "analyzers": [],
+        "classified_commits": []
+    }
+    
     # Process the issue with test collector
-    issue_results = test_collector.process_openj9_issue(
+    openj9_analysis = test_collector.process_openj9_issue(
         args.issue, args.good, args.bad, git_collector
     )
+
+    issue_results.update(openj9_analysis)
     
     # Try the binary search first if we have a test name
     if args.test_name:

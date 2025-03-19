@@ -1,0 +1,6 @@
+{
+  "test_name": "JITTests",
+  "error_message": "Error in JIT compilation: Cannot allocate code cache. JIT codegen failed.",
+  "stack_trace": "at org.eclipse.openj9.jit.CodeCache.allocate(CodeCache.java:143)",
+  "commit": "eac681f0cee21af67657f575a366590b937a2a13"
+}

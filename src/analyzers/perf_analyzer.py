@@ -463,3 +463,111 @@ class PerformanceAnalyzer:
     def _measure_response_time(self) -> float:
         """Measure response time."""
         return np.random.uniform(50, 150)  # Random value between 50-150ms
+
+    def classify_performance_commit(self, commit_info: Dict[str, Any], 
+                              perf_regression: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Classify a commit as "Likely Problematic" or "Safe" based on performance regression analysis.
+        
+        Args:
+            commit_info: Dictionary with commit information
+            perf_regression: Performance regression analysis results
+            
+        Returns:
+            Dictionary with classification results including reasons and confidence
+        """
+        self.logger.info(f"Classifying commit {commit_info.get('hash', '')[:8]} for performance regression")
+        
+        score = 0.0
+        reasons = []
+        
+        if perf_regression.get('is_regression', False):
+            base_score = min(0.3, perf_regression.get('percent_change', 0) / 100)
+            score += base_score
+            
+            if perf_regression.get('percent_change', 0) > 10:
+                reasons.append(f"Significant performance regression detected ({perf_regression.get('percent_change', 0):.1f}%)")
+            else:
+                reasons.append(f"Performance regression detected ({perf_regression.get('percent_change', 0):.1f}%)")
+        
+        code_analysis = self.analyze_code_changes(commit_info.get('hash', ''))
+        
+        if code_analysis.get('risk_score', 0) > 0:
+            score += code_analysis.get('risk_score', 0) * 0.4
+            
+            for pattern in code_analysis.get('patterns_found', []):
+                reasons.append(f"Found performance-sensitive pattern: {pattern}")
+                
+            for file in code_analysis.get('high_risk_files', []):
+                reasons.append(f"High-risk file modified: {file.get('file', 'unknown')}")
+        
+        message = commit_info.get('message', '').lower()
+        openj9_perf_keywords = [
+            'throughput', 'latency', 'response time', 'cpu usage', 
+            'memory footprint', 'gc pause', 'startup time', 'jit', 
+            'compilation', 'optimization'
+        ]
+        
+        for keyword in openj9_perf_keywords:
+            if keyword in message:
+                score += 0.1
+                reasons.append(f"Performance-related keyword '{keyword}' in commit message")
+                break  # Only count once
+        
+        classification = {
+            "commit_hash": commit_info.get('hash', ''),
+            "score": min(1.0, score),  # Cap at 1.0
+            "reasons": reasons,
+            "classification": "Likely Problematic" if score >= 0.4 else "Safe",
+            "confidence": score if score >= 0.4 else 1.0 - score,
+            "performance_impact": {
+                "regression_detected": perf_regression.get('is_regression', False),
+                "percent_change": perf_regression.get('percent_change', 0),
+                "p_value": perf_regression.get('p_value', 1.0)
+            }
+        }
+        
+        return classification
+
+    def analyze_openj9_performance(self, good_commit: str, bad_commit: str, 
+                              test_name: str = None) -> Dict[str, Any]:
+        """
+        Analyze OpenJ9 performance metrics between good and bad commits.
+        
+        Args:
+            good_commit: SHA of the good commit
+            bad_commit: SHA of the bad commit
+            test_name: Optional specific test to analyze
+            
+        Returns:
+            Dictionary with analysis results and classified commits
+        """
+        self.logger.info(f"Analyzing OpenJ9 performance between {good_commit[:8]} and {bad_commit[:8]}")
+        
+        good_metrics = self.collect_performance_metrics(good_commit)
+        bad_metrics = self.collect_performance_metrics(bad_commit)
+        
+        regression_analysis = self.analyze_performance(good_metrics, bad_metrics)
+        
+        commits = self.git_collector.get_commits_between(good_commit, bad_commit)
+        
+        classified_commits = []
+        for commit in commits:
+            commit_info = self.git_collector.get_commit_info(commit['hash'])
+            classification = self.classify_performance_commit(commit_info, regression_analysis)
+            classified_commits.append(classification)
+        
+        classified_commits.sort(key=lambda x: x['score'], reverse=True)
+        
+        likely_problematic = [c for c in classified_commits if c['classification'] == "Likely Problematic"]
+        safe_commits = [c for c in classified_commits if c['classification'] == "Safe"]
+        
+        return {
+            "good_commit": good_commit,
+            "bad_commit": bad_commit,
+            "regression_analysis": regression_analysis,
+            "classified_commits": classified_commits,
+            "likely_problematic_count": len(likely_problematic),
+            "safe_count": len(safe_commits),
+            "top_suspect": likely_problematic[0] if likely_problematic else None
+        }

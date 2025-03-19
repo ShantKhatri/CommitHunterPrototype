@@ -6,50 +6,22 @@ to identify likely problematic commits causing test failures.
 """
 
 import re
+import os
+import nltk
 import numpy as np
 import difflib
 import logging
 from typing import List, Dict, Any, Optional, Tuple, Set
+from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
+from collections import Counter
 
 class StringMatcher:
     """
-    A rule-based analyzer that identifies problematic commits by matching
-    error messages with keywords in commit messages and code diffs.
+    Enhanced analyzer that matches error messages with commits
+    and implements the SZZ algorithm to identify bug-inducing changes.
     """
 
-
-    def _load_stopwords(self) -> Set[str]:
-        """Load common stopwords to filter out noise, customized for CommitHunter and Eclipse OpenJ9."""
-        stopwords = {
-            'test', 'assert', 'error', 'exception', 'the', 'and', 'but', 'or',
-            'for', 'not', 'with', 'this', 'that', 'these', 'those', 'null',
-            'true', 'false', 'java', 'org', 'com', 'net', 'public', 'private',
-            'static', 'class', 'void', 'main', 'string', 'int', 'boolean',
-            'expected', 'actual', 'failed', 'failure', 'method', 'trace', 'stack',
-            'debug', 'log', 'warning', 'info', 'traceback', 'invoke', 'process',
-            'timeout', 'halt', 'exit', 'trigger', 'event', 'execution'
-        }
-
-        # Eclipse OpenJ9 and CommitHunter-specific stopwords
-        openj9_stopwords = {
-            'j9', 'vm', 'jit', 'runtime', 'gc', 'javaheap', 'heap', 'garbage',
-            'collector', 'compilation', 'thread', 'mutex', 'lock', 'monitor',
-            'synchronization', 'segfault', 'core', 'dump', 'threading',
-            'interpreter', 'optimization', 'bytecode', 'jitserver', 'signal',
-            'segmentation', 'trampoline', 'frame', 'native', 'nativecode', 'sandbox',
-            'oom', 'outofmemory', 'compressedrefs', 'aot', 'dll', 'so', 'library',
-            'dynamic', 'classloader', 'javaclass', 'classpath', 'jni', 'jnierror',
-            'gcstats', 'gcpolicy', 'heapdump', 'corefile', 'crashdump', 'oomkiller',
-            'metaspace', 'verbosegc', 'xmx', 'xms', 'xmn', 'xxgc', 'compactedheap',
-            'compressedoops', 'runtimeexception', 'npe', 'nullpointerexception',
-            'illegalstateexception', 'illegalargumentexception', 'segv', 'sigsegv'
-        }
-
-        stopwords.update(openj9_stopwords)
-
-        return stopwords
-    
-    
     def __init__(self, git_collector):
         """
         Initialize the string matcher with a GitCollector instance.
@@ -60,7 +32,25 @@ class StringMatcher:
         self.git_collector = git_collector
         self.logger = logging.getLogger(__name__)
         
+        try:
+            nltk.data.find('corpora/stopwords')
+        except LookupError:
+            nltk.download('stopwords', quiet=True)
+            
         self.stopwords = self._load_stopwords()
+        self.stemmer = PorterStemmer()
+        
+        self.technical_keywords = {
+            'null', 'undefined', 'nan', 'exception', 'error', 'fail',
+            'memory', 'leak', 'crash', 'timeout', 'deadlock', 'race',
+            'synchronization', 'concurrent', 'thread', 'performance'
+        }
+        
+        self.code_keywords = {
+            'if', 'else', 'for', 'while', 'try', 'catch', 'throw',
+            'return', 'class', 'function', 'method', 'synchronized',
+            'volatile', 'static', 'final', 'const', 'var', 'let'
+        }
         
         self.suspicious_patterns = [
             r"fix(?:ed|es|ing)?\s+bug",
@@ -90,253 +80,265 @@ class StringMatcher:
         
         self.logger.info("String matcher initialized with {} suspicious patterns".format(len(self.suspicious_patterns)))
 
+    def _load_stopwords(self) -> Set[str]:
+        """Load and prepare stopwords for NLP processing"""
+        try:
+            stops = set(stopwords.words('english'))
+            stops.update([
+                'test', 'tests', 'testing', 'tested',
+                'file', 'files', 'line', 'lines',
+                'code', 'commit', 'version', 'fix', 'issue',
+                'bug', 'error', 'problem', 'success', 'failure'
+            ])
+            return stops
+        except Exception as e:
+            print(f"Error loading stopwords: {e}")
+            return set()
+
     def extract_error_keywords(self, error_message: str) -> List[str]:
         """
-        Extract key terms from test failure messages with improved pattern matching.
+        Extract meaningful keywords from an error message.
         
-        Args:
-            error_message: The error or failure message from the test
-            
-        Returns:
-            List of extracted keywords relevant to the failure
+        This improved version:
+        1. Handles stack traces better
+        2. Extracts class names, method names, and variable names
+        3. Prioritizes technical terms
         """
         if not error_message:
-            self.logger.warning("No error message provided")
             return []
             
-        self.logger.debug(f"Extracting keywords from error message: {error_message[:100]}...")
+        error_message = error_message.lower()
         
-        keywords = set()
-        
-        file_line_patterns = re.findall(r'([a-zA-Z0-9_/\\.-]+\.(?:cpp|java|h|py|js|go))(?::(\d+))?', error_message)
-        for file_path, line_num in file_line_patterns:
-            filename = file_path.split('/')[-1].split('\\')[-1].split('.')[0]
-            keywords.add(filename)
-            
-            path_parts = file_path.split('/')
-            if len(path_parts) > 1:
-                component = path_parts[0]
-                if len(component) > 2 and component.lower() not in self.stopwords:
-                    keywords.add(component)
-        
-        error_types = re.findall(r'([A-Z][a-zA-Z0-9_]*(?:Exception|Error|Failure|Fault))', error_message)
-        keywords.update(error_types)
-        
-        if 'segmentation fault' in error_message.lower():
-            keywords.add('segfault')
-            keywords.add('memory')
-        
-        if 'null pointer' in error_message.lower() or 'nullptr' in error_message.lower():
-            keywords.add('nullptr')
-        
-        if 'out of memory' in error_message.lower() or 'outofmemory' in error_message.lower():
-            keywords.add('memory')
-            keywords.add('leak')
-        
-        function_names = re.findall(r'(?:in|at|function)\s+([A-Za-z][A-Za-z0-9_:]+)\s*\(', error_message)
-        keywords.update(function_names)
-        
-        class_names = re.findall(r'([A-Z][a-zA-Z0-9_]*)\.[a-zA-Z0-9_]+', error_message)
-        keywords.update(class_names)
-        
-        identifiers = re.findall(r'\b([A-Z][a-z0-9]+(?:[A-Z][a-z0-9]+)+)\b', error_message)  # CamelCase
-        identifiers.extend(re.findall(r'\b([a-z][a-z0-9]+(?:_[a-z0-9]+)+)\b', error_message))  # snake_case
-        keywords.update(identifiers)
-        
-        for term in re.findall(r'\b[A-Za-z][a-zA-Z0-9_]{3,}\b', error_message):
-            if term.lower() not in self.stopwords and len(term) >= 4:
-                keywords.add(term)
-        
-        noise_terms = {'error', 'exception', 'failure', 'test', 'assert', 'expected', 'actual'}
-        filtered_keywords = [k for k in keywords if k.lower() not in noise_terms]
-        
-        if error_types:
-            filtered_keywords.extend(error_types)
-        
-        self.logger.info(f"Extracted {len(filtered_keywords)} keywords: {', '.join(filtered_keywords)}")
-        return filtered_keywords
-    
-    def analyze_commit_diff(self, commit_hash: str, keywords: List[str]) -> Tuple[float, List[Dict[str, Any]]]:
-        """Analyze commit diff with enhanced confidence scoring and optimized normalization."""
-        
-        SCORING_WEIGHTS = {
-            'keyword_match': {
-                'weight': 0.35,  # Increased weight for direct keyword matches
-                'max_occurrences': 3,
-                'decay_factor': 0.7  # Diminishing returns for repeated keywords
-            },
-            'code_file': {
-                'weight': 0.25,
-                'bonus_paths': ['src/', 'main/', 'core/', 'include/']
-            },
-            'test_file': {
-                'weight': 0.20,
-                'test_paths': ['test/', 'tests/', 'unittest/', 'functional/']
-            },
-            'error_pattern': {
-                'weight': 0.40,
-                'patterns': ['error', 'exception', 'fail', 'crash', 'invalid', 'nullptr', 
-                             'segfault', 'assertion', 'timeout', 'deadlock']
-            },
-            'change_size': {
-                'weight': 0.30,
-                'small_change': 30,    # Small, focused changes (higher weight)
-                'medium_change': 150,  # Medium changes
-                'large_change': 500    # Large changes (lower weight)
-            }
-        }
-
-        try:
-            modified_files = []
-            total_score = 0.0
-            commit = self.git_collector.repo.commit(commit_hash)
-            file_count = 0
-            
-            commit_msg = commit.message.lower()
-            msg_keywords = set()
-            
-            for pattern in self.suspicious_patterns:
-                if re.search(pattern, commit_msg, re.IGNORECASE):
-                    msg_keywords.add(pattern)
-            
-            commit_msg_bonus = min(0.2, len(msg_keywords) * 0.05)
-
-            if commit.parents:
-                diff_index = commit.parents[0].diff(commit)
+        stack_frames = []
+        for line in error_message.split('\n'):
+            match = re.search(r'at\s+([\w\.]+)\(([\w\.]+):(\d+)\)', line)
+            if match:
+                frame = match.group(1)
+                stack_frames.append(frame)
+                continue
                 
-                file_count = sum(1 for d in diff_index if d.b_blob)
-                
-                for diff in diff_index:
-                    if not diff.b_blob:
-                        continue
-                        
-                    try:
-                        content = diff.b_blob.data_stream.read().decode('utf-8', errors='ignore')
-                        matches = []
-                        file_stats = commit.stats.files.get(diff.b_path, {})
-                        confidence_metrics = {'keyword_matches': 0, 'code_relevance': 0, 
-                                             'test_coverage': 0, 'error_indicators': 0, 
-                                             'change_impact': 0}
-                        
-                        matched_keywords_count = 0
-                        content_lower = content.lower()
-                        
-                        matched_keywords = set()
-                        
-                        for keyword in keywords:
-                            keyword_lower = keyword.lower()
-                            if len(keyword) >= 4:  # Only meaningful keywords
-                                occurrences = content_lower.count(keyword_lower)
-                                if occurrences > 0:
-                                    if re.search(rf'\b{re.escape(keyword_lower)}\b', content_lower):
-                                        matches.append(keyword)
-                                        matched_keywords.add(keyword_lower)
-                                        decay = SCORING_WEIGHTS['keyword_match']['decay_factor'] ** (len(matched_keywords) - 1)
-                                        confidence_metrics['keyword_matches'] += min(
-                                            SCORING_WEIGHTS['keyword_match']['weight'] * decay,
-                                            SCORING_WEIGHTS['keyword_match']['weight']
-                                        )
-                        
-                        if self._is_code_file(diff.b_path):
-                            confidence_metrics['code_relevance'] = SCORING_WEIGHTS['code_file']['weight']
-                            for bonus_path in SCORING_WEIGHTS['code_file']['bonus_paths']:
-                                if bonus_path in diff.b_path:
-                                    confidence_metrics['code_relevance'] += 0.1
-                                    break
-                        
-                        for test_path in SCORING_WEIGHTS['test_file']['test_paths']:
-                            if test_path in diff.b_path:
-                                confidence_metrics['test_coverage'] = SCORING_WEIGHTS['test_file']['weight']
-                                break
-                        
-                        if any(pattern in content_lower for pattern in SCORING_WEIGHTS['error_pattern']['patterns']):
-                            pattern_matches = 0
-                            pattern_weights = {}
-                            
-                            for pattern in SCORING_WEIGHTS['error_pattern']['patterns']:
-                                if pattern in content_lower:
-                                    occurrences = content_lower.count(pattern)
-                                    
-                                    if self._pattern_in_code_context(pattern, content):
-                                        pattern_weight = min(0.15 * occurrences, 0.45)
-                                    else:
-                                        pattern_weight = min(0.05 * occurrences, 0.15)
-                                        
-                                    pattern_matches += 1
-                                    pattern_weights[pattern] = pattern_weight
-                            
-                            confidence_metrics['error_indicators'] = SCORING_WEIGHTS['error_pattern']['weight'] * \
-                                                                  (1 - 1/(1 + sum(pattern_weights.values())))
-                        
-                        lines_changed = file_stats.get('lines', 0)
-                        if lines_changed <= SCORING_WEIGHTS['change_size']['small_change']:
-                            confidence_metrics['change_impact'] = SCORING_WEIGHTS['change_size']['weight']
-                        elif lines_changed <= SCORING_WEIGHTS['change_size']['medium_change']:
-                            confidence_metrics['change_impact'] = SCORING_WEIGHTS['change_size']['weight'] * 0.7
-                        else:
-                            confidence_metrics['change_impact'] = SCORING_WEIGHTS['change_size']['weight'] * \
-                                                              max(0.1, 2.0 / np.log10(lines_changed))
-                        
-                        raw_score = sum(confidence_metrics.values())
-                        
-                        normalized_score = 1.0 / (1.0 + np.exp(-raw_score + 0.5))
-                        
-                        if normalized_score >= 0.15 or matches:
-                            modified_files.append({
-                                'path': diff.b_path,
-                                'score': normalized_score,
-                                'confidence_metrics': confidence_metrics,
-                                'matches': matches,
-                                'type': diff.change_type,
-                                'additions': file_stats.get('insertions', 0),
-                                'deletions': file_stats.get('deletions', 0),
-                                'lines_changed': file_stats.get('lines', 0)
-                            })
-                            total_score += normalized_score
-                    
-                    except Exception as e:
-                        self.logger.warning(f"Error analyzing file {diff.b_path}: {str(e)}")
-                        continue
-
-                if modified_files:
-                    file_count_factor = 1.0 / (1.0 + 0.3 * np.log1p(file_count))
-                    
-                    adjusted_score = (total_score * file_count_factor) + commit_msg_bonus
-                    
-                    final_score = 1.0 / (1.0 + np.exp(-2 * (adjusted_score - 0.5)))
-                    
-                    for file in modified_files:
-                        file['confidence'] = {
-                            'score': file['score'],
-                            'relative_impact': file['score'] / total_score if total_score > 0 else 0,
-                            'metrics': file['confidence_metrics']
-                        }
-                    
-                    return final_score, modified_files
-
-            return 0.0, []
-
-        except Exception as e:
-            self.logger.error(f"Error analyzing commit {commit_hash}: {str(e)}")
-            return 0.0, []
-
-    def _is_code_file(self, file_path: str) -> bool:
-        """
-        Check if a file is likely a code file.
+            match = re.search(r'file\s+"[^"]+",\s+line\s+\d+,\s+in\s+([\w\.]+)', line, re.IGNORECASE)
+            if match:
+                frame = match.group(1)
+                stack_frames.append(frame)
         
-        Args:
-            file_path: Path to the file
-            
-        Returns:
-            True if the file is likely a code file, False otherwise
-        """
-        code_extensions = [
-            '.java', '.c', '.cpp', '.h', '.hpp', '.js', '.py', '.rb', '.go', 
-            '.cs', '.ts', '.sh', '.xml', '.json', '.yml', '.yaml'
+        classes_and_methods = set()
+        for frame in stack_frames:
+            parts = frame.split('.')
+            if len(parts) > 1:
+                classes_and_methods.update(parts)
+        
+        words = re.findall(r'\b\w+\b', error_message)
+        
+        identifiers = re.findall(r'\b([a-z]+[A-Z]\w+|\w+_\w+)\b', error_message)
+        
+        all_words = words + list(classes_and_methods) + identifiers
+        
+        filtered_words = [
+            word for word in all_words 
+            if word not in self.stopwords or word in self.technical_keywords
         ]
         
-        return any(file_path.endswith(ext) for ext in code_extensions)
+        stemmed_words = [self.stemmer.stem(word) for word in filtered_words]
+        
+        word_counts = Counter(stemmed_words)
+        
+        keywords = [word for word, count in word_counts.most_common(20)]
+        
+        return keywords
+
+    def analyze_commit_diff(self, commit_hash: str, keywords: List[str]) -> Tuple[float, List[Dict[str, Any]]]:
+        """
+        Analyze a commit diff to find matches with error keywords.
+        Returns a confidence score and list of matches.
+        """
+        commit_info = self.git_collector.get_commit_info(commit_hash)
+        if not commit_info:
+            return 0.0, []
+            
+        modified_files = self.git_collector.get_modified_files(commit_hash)
+        
+        matches = []
+        total_matches = 0
+        max_matches = 0
+        
+        message = commit_info.get('message', '').lower()
+        message_matches = self._count_keyword_matches(message, keywords)
+        if message_matches > 0:
+            matches.append({
+                'type': 'commit_message',
+                'content': message,
+                'matches': message_matches,
+                'keywords': [kw for kw in keywords if kw.lower() in message.lower()]
+            })
+            total_matches += message_matches * 2  # Weight commit message matches higher
+            max_matches = max(max_matches, message_matches)
+        
+        for file_path, file_info in modified_files.items():
+            try:
+                file_content = self.git_collector.repo.git.show(f"{commit_hash}:{file_path}")
+                
+                file_matches = self._count_keyword_matches(file_content, keywords)
+                if file_matches > 0:
+                    matches.append({
+                        'type': 'file_content',
+                        'file': file_path,
+                        'matches': file_matches,
+                        'keywords': [kw for kw in keywords if kw.lower() in file_content.lower()]
+                    })
+                    total_matches += file_matches
+                    max_matches = max(max_matches, file_matches)
+            except Exception as e:
+                continue
+                
+        if not keywords:
+            confidence = 0.0
+        else:
+            keyword_coverage = len([m for m in matches if m['matches'] > 0]) / max(len(keywords), 1)
+            match_strength = min(1.0, total_matches / (len(keywords) * 3))
+            confidence = 0.4 * keyword_coverage + 0.6 * match_strength
+            
+        return confidence, matches
     
+    def _count_keyword_matches(self, text: str, keywords: List[str]) -> int:
+        """Count occurrences of keywords in text"""
+        if not text or not keywords:
+            return 0
+            
+        text = text.lower()
+        count = 0
+        
+        for keyword in keywords:
+            keyword = keyword.lower()
+            count += len(re.findall(r'\b' + re.escape(keyword) + r'\b', text))
+            
+        return count
+        
+    def identify_fix_commits(self, commit_range: List[str]) -> List[str]:
+        """
+        Identify commits that are likely fixing bugs based on commit messages.
+        """
+        fix_commits = []
+        
+        for commit_hash in commit_range:
+            commit_info = self.git_collector.get_commit_info(commit_hash)
+            if not commit_info:
+                continue
+                
+            message = commit_info.get('message', '').lower()
+            
+            if any(pattern in message for pattern in [
+                'fix', 'fixes', 'fixed', 'resolve', 'resolves', 'resolved',
+                'close', 'closes', 'closed', 'bug', 'defect', 'issue'
+            ]):
+                fix_commits.append(commit_hash)
+                
+        return fix_commits
+        
+    def identify_bug_inducing_commits(self, fixing_commit: str) -> List[Dict[str, Any]]:
+        """
+        Implement the SZZ algorithm to identify bug-inducing commits.
+        Returns a list of potential bug-inducing commits with confidence scores.
+        """
+        commit_info = self.git_collector.get_commit_info(fixing_commit)
+        if not commit_info or not commit_info.get('parents'):
+            return []
+            
+        modified_files = self.git_collector.get_modified_files(fixing_commit)
+        
+        potential_bug_inducers = []
+        
+        for file_path, file_info in modified_files.items():
+            if not file_info.get('lines'):
+                continue
+                
+            blame_info = self.git_collector.get_blame_info(
+                fixing_commit, 
+                file_path, 
+                file_info.get('lines', [])
+            )
+            
+            for bug_commit in blame_info.get('commits', []):
+                if bug_commit == fixing_commit:
+                    continue
+                    
+                bug_commit_info = self.git_collector.get_commit_info(bug_commit)
+                if not bug_commit_info:
+                    continue
+                
+                age_factor = self._calculate_age_factor(
+                    bug_commit_info.get('committed_date'),
+                    commit_info.get('committed_date')
+                )
+                
+                classification = self.git_collector.classify_commit(bug_commit)
+                class_factor = {
+                    'feature_addition': 0.8,  # New features often introduce bugs
+                    'corrective': 0.3,        # Fixes sometimes introduce new bugs
+                    'merge': 0.6,             # Merges can introduce integration bugs
+                    'perfective': 0.5,        # Code improvements sometimes cause issues
+                    'preventive': 0.4,        # Testing changes sometimes miss cases
+                    'non_functional': 0.2,    # Documentation rarely introduces bugs
+                    'unknown': 0.5            # Default middle value
+                }.get(classification, 0.5)
+                
+                churn = bug_commit_info.get('lines_added', 0) + bug_commit_info.get('lines_deleted', 0)
+                churn_factor = min(1.0, churn / 500)  # Normalize with a cap
+                
+                exp = bug_commit_info.get('author_experience', 0)
+                exp_factor = max(0.2, 1.0 - (min(exp, 50) / 50))  # More experience = lower risk
+                
+                confidence = (0.3 * age_factor + 
+                             0.3 * class_factor + 
+                             0.2 * churn_factor + 
+                             0.2 * exp_factor)
+                             
+                potential_bug_inducers.append({
+                    'commit': bug_commit,
+                    'classification': classification,
+                    'modified_file': file_path,
+                    'confidence': confidence,
+                    'author': bug_commit_info.get('author'),
+                    'date': bug_commit_info.get('committed_date'),
+                    'message': bug_commit_info.get('message')
+                })
+        
+        potential_bug_inducers.sort(key=lambda x: x['confidence'], reverse=True)
+        
+        unique_commits = {}
+        for inducer in potential_bug_inducers:
+            commit = inducer['commit']
+            if commit not in unique_commits or unique_commits[commit]['confidence'] < inducer['confidence']:
+                unique_commits[commit] = inducer
+                
+        return list(unique_commits.values())
+        
+    def _calculate_age_factor(self, bug_date, fix_date) -> float:
+        """
+        Calculate age factor based on time between bug introduction and fix.
+        Recent changes are more suspicious than older ones.
+        """
+        if not bug_date or not fix_date:
+            return 0.5  # Default
+            
+        try:
+            time_diff = (fix_date - bug_date).days
+            
+            if time_diff <= 0:
+                return 1.0  # Same day
+            elif time_diff < 7:
+                return 0.9  # Within a week
+            elif time_diff < 30:
+                return 0.7  # Within a month
+            elif time_diff < 90:
+                return 0.5  # Within a quarter
+            elif time_diff < 365:
+                return 0.3  # Within a year
+            else:
+                return 0.1  # Over a year
+        except Exception:
+            return 0.5  # Default on error
+
     def find_suspicious_commits(self, good_commit: str, bad_commit: str, 
                                error_message: str, threshold: float = 0.6,
                                context: Dict[str, Any] = None) -> List[Dict[str, Any]]:

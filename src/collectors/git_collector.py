@@ -4,148 +4,351 @@ Git Data Collector Module
 This module provides functionality to collect and process data from Git repositories.
 """
 
+import os
+import re
 import git
 import logging
 import os
 import json
+import subprocess
+import numpy as np
 from datetime import datetime
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Set, Tuple
+from collections import defaultdict
 
 class GitCollector:
     """
-    A class for collecting and processing data from Git repositories.
-    
-    This collector interfaces with Git repositories to extract commit information,
-    diffs, and other relevant metadata for commit analysis.
+    Enhanced Git collector with commit metadata and SZZ algorithm support.
     """
     
-    def __init__(self, repo_url: str):
-        """Initialize the Git data collector."""
+    def __init__(self, repo_url: str, cache_dir: str = ".cache"):
         self.logger = logging.getLogger(__name__)
-        self.cache_dir = os.path.abspath('.git_cache')
-        os.makedirs(self.cache_dir, exist_ok=True)
+        self.repo_url = repo_url
+        self.cache_dir = cache_dir
         
-        repo_name = repo_url.rstrip('/').split('/')[-1]
-        if repo_name.endswith('.git'):
-            repo_name = repo_name[:-4]
+        # Clone or open the repository
+        repo_name = repo_url.split('/')[-1].replace('.git', '')
+        self.repo_path = os.path.join(cache_dir, repo_name)
         
-        self.repo_path = os.path.join(self.cache_dir, repo_name)
+        if not os.path.exists(self.repo_path):
+            self.repo = git.Repo.clone_from(repo_url, self.repo_path)
+        else:
+            self.repo = git.Repo(self.repo_path)
+            self.repo.git.fetch('--all')
         
+        self._commit_cache = {}
+        self._classification_cache = {}
+        self._modified_files_cache = {}
+        self._author_experience = defaultdict(int)
+        self._file_history = defaultdict(list)
+        
+        self._build_author_experience_index()
+        
+    def _build_author_experience_index(self):
+        """Build an index of author experience for all authors in the repo"""
         try:
-            if os.path.exists(self.repo_path):
-                self.logger.info(f"Using existing repository at {self.repo_path}")
-                self.repo = git.Repo(self.repo_path)
-                
-                self.logger.info("Fetching latest changes and tags...")
-                origin = self.repo.remotes.origin
-                origin.fetch()
-                origin.fetch(tags=True)
-            else:
-                self.logger.info(f"Cloning repository from {repo_url}")
-                self.repo = git.Repo.clone_from(
-                    repo_url, 
-                    self.repo_path,
-                    no_single_branch=True,
-                    depth=1000
-                )
-                origin = self.repo.remotes.origin
-                origin.fetch(tags=True)
-            
-            self.tags = {}
-            for tag in self.repo.tags:
-                tag_name = str(tag)
-                self.tags[tag_name] = {
-                    'hash': tag.commit.hexsha,
-                    'date': tag.commit.committed_datetime
-                }
-            
-            self.sorted_tags = sorted(
-                self.tags.keys(),
-                key=version_key
-            )
-            
-            self.logger.info(f"Available tags ({len(self.tags)}): {', '.join(self.sorted_tags[:5])}...")
-            self.logger.info("Successfully initialized repository")
-            
-        except git.GitCommandError as e:
-            self.logger.error(f"Git command error: {str(e)}")
-            raise
+            author_log = self.repo.git.shortlog('-sne', '--all')
+            for line in author_log.split('\n'):
+                if not line.strip():
+                    continue
+                parts = line.strip().split('\t')
+                if len(parts) == 2:
+                    count, author = parts
+                    self._author_experience[author] = int(count)
         except Exception as e:
-            self.logger.error(f"Error initializing repository: {str(e)}")
-            raise
-
+            print(f"Warning: Could not build author experience index: {e}")
+    
     def resolve_reference(self, ref: str) -> str:
         """
-        Resolve a git reference (tag, branch, or commit hash) to a commit hash.
-        
-        Args:
-            ref: Git reference to resolve
-            
-        Returns:
-            Resolved commit hash
+        Resolve a Git reference (branch, tag, partial hash) to a full commit hash.
         """
         try:
-            if ref in self.tags:
-                return self.tags[ref]['hash']
+            full_hash = self.repo.git.rev_parse(ref)
+            return full_hash
+        except git.GitCommandError:
+            try:
+                matching_tags = self.repo.git.tag('--list', f'*{ref}*').splitlines()
+                if matching_tags:
+                    return self.repo.git.rev_parse(matching_tags[0])
+            except git.GitCommandError:
+                pass
             
-            commit = self.repo.commit(ref)
-            return commit.hexsha
-            
-        except (git.GitCommandError, KeyError) as e:
-            self.logger.error(f"Could not resolve reference '{ref}': {str(e)}")
-            raise ValueError(f"Invalid git reference: {ref}")
-
+            raise ValueError(f"Could not resolve Git reference: {ref}")
+    
     def get_commit_info(self, commit_hash: str) -> Optional[Dict[str, Any]]:
         """
         Get detailed information about a specific commit.
-        
-        Args:
-            commit_hash: The commit hash to analyze
-            
-        Returns:
-            Dictionary with commit details including hash, author, message, and stats
         """
-        self.logger.debug(f"Getting info for commit: {commit_hash}")
+        if commit_hash in self._commit_cache:
+            return self._commit_cache[commit_hash]
         
         try:
             commit = self.repo.commit(commit_hash)
             
+            # Get basic commit information
             info = {
-                "hash": commit.hexsha,
-                "short_hash": commit.hexsha[:8],
-                "author_name": commit.author.name,
-                "author_email": commit.author.email,
-                "committer_name": commit.committer.name,
-                "committer_email": commit.committer.email,
-                "date": commit.committed_datetime.isoformat(),
-                "message": commit.message.strip(),
-                "summary": commit.summary,
-                "parent_hashes": [p.hexsha for p in commit.parents],
+                'hash': commit.hexsha,
+                'author': f"{commit.author.name} <{commit.author.email}>",
+                'author_name': commit.author.name,
+                'author_email': commit.author.email,
+                'authored_date': datetime.fromtimestamp(commit.authored_date),
+                'committer': f"{commit.committer.name} <{commit.committer.email}>",
+                'committed_date': datetime.fromtimestamp(commit.committed_date),
+                'message': commit.message,
+                'parents': [p.hexsha for p in commit.parents],
+                'files_changed': [],
+                'lines_added': 0,
+                'lines_deleted': 0,
+                'lines_changed': 0,
             }
             
-            stats = {
-                "files_changed": {},
-                "total_insertions": 0,
-                "total_deletions": 0,
-                "total_lines_changed": 0
-            }
-            
-            for file, file_stats in commit.stats.files.items():
-                stats["files_changed"][file] = {
-                    "insertions": file_stats["insertions"],
-                    "deletions": file_stats["deletions"],
-                    "lines": file_stats["insertions"] + file_stats["deletions"]
+            file_stats = {}
+            for file_path, stats in commit.stats.files.items():
+                file_stats[file_path] = {
+                    'lines_added': stats['insertions'],
+                    'lines_deleted': stats['deletions'],
+                    'lines_changed': stats['insertions'] + stats['deletions'],
                 }
-                stats["total_insertions"] += file_stats["insertions"]
-                stats["total_deletions"] += file_stats["deletions"]
-                stats["total_lines_changed"] += file_stats["insertions"] + file_stats["deletions"]
+                info['lines_added'] += stats['insertions']
+                info['lines_deleted'] += stats['deletions']
+                info['lines_changed'] += stats['insertions'] + stats['deletions']
+                info['files_changed'].append(file_path)
             
-            info["stats"] = stats
+            info['file_stats'] = file_stats
+            
+            info['subsystems'] = self._extract_subsystems(info['files_changed'])
+            
+            info['entropy'] = self._calculate_entropy(file_stats)
+            
+            info['author_experience'] = self._author_experience.get(info['author'], 0)
+            
+            info['recent_experience'] = self._get_recent_experience(
+                info['author_email'], info['committed_date']
+            )
+            
+            self._commit_cache[commit_hash] = info
+            
             return info
+        
+        except (git.GitCommandError, ValueError) as e:
+            print(f"Error getting commit info for {commit_hash}: {e}")
+            return None
+    
+    def _extract_subsystems(self, file_paths: List[str]) -> Set[str]:
+        """Extract subsystems (top-level directories) from file paths"""
+        subsystems = set()
+        for file_path in file_paths:
+            parts = file_path.split('/')
+            if len(parts) > 1:
+                subsystems.add(parts[0])
+            else:
+                subsystems.add('root')
+        return subsystems
+    
+    def _calculate_entropy(self, file_stats: Dict[str, Dict[str, int]]) -> float:
+        """
+        Calculate Shannon's entropy for code changes across files.
+        Higher entropy means changes are scattered across many files.
+        """
+        from math import log2
+        
+        total_changes = sum(stats['lines_changed'] for stats in file_stats.values())
+        if total_changes == 0:
+            return 0.0
+        
+        entropy = 0
+        for file_path, stats in file_stats.items():
+            if stats['lines_changed'] == 0:
+                continue
+                
+            p = stats['lines_changed'] / total_changes
+            entropy -= p * log2(p)
+            
+        return entropy
+    
+    def _get_recent_experience(self, author_email: str, commit_date: datetime, 
+                              months: int = 3) -> int:
+        """Get the author's number of commits in the last N months before this commit"""
+        from datetime import timedelta
+        
+        cutoff_date = commit_date - timedelta(days=30 * months)
+        
+        try:
+            count = len(list(self.repo.iter_commits(
+                author=author_email,
+                until=commit_date.strftime('%Y-%m-%d'),
+                since=cutoff_date.strftime('%Y-%m-%d')
+            )))
+            return count
+        except Exception:
+            return 0
+    
+    def get_commit_range(self, good_commit: str, bad_commit: str) -> List[str]:
+        """
+        Get all commits between good_commit and bad_commit.
+        """
+        try:
+            good_hash = self.resolve_reference(good_commit)
+            bad_hash = self.resolve_reference(bad_commit)
+            
+            commit_range = f"{good_hash}..{bad_hash}"
+            commit_list = self.repo.git.rev_list(commit_range).splitlines()
+            
+            return list(reversed(commit_list))
+        except Exception as e:
+            print(f"Error getting commit range: {e}")
+            return []
+
+    def get_modified_files(self, commit_hash: str) -> Dict[str, Dict[str, Any]]:
+        """
+        Get detailed information about files modified in the commit.
+        Returns a dict with file paths as keys and modification details as values.
+        """
+        if commit_hash in self._modified_files_cache:
+            return self._modified_files_cache[commit_hash]
+        
+        try:
+            commit = self.repo.commit(commit_hash)
+            if not commit.parents:
+                return {}  # Initial commit
+                
+            parent = commit.parents[0]
+            
+            result = {}
+            diffs = parent.diff(commit)
+            
+            for diff in diffs:
+                if diff.deleted_file:
+                    continue  # Skip deleted files
+                    
+                file_path = diff.b_path
+                
+                changed_lines = []
+                
+                try:
+                    patch = self.repo.git.diff(
+                        parent.hexsha, 
+                        commit.hexsha, 
+                        '--', 
+                        file_path,
+                        unified=0
+                    )
+                    
+                    for line in patch.splitlines():
+                        if line.startswith('@@'):
+                            match = re.search(r'@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@', line)
+                            if match:
+                                start_line = int(match.group(1))
+                                line_count = int(match.group(2)) if match.group(2) else 1
+                                changed_lines.extend(range(start_line, start_line + line_count))
+                                
+                except Exception as e:
+                    print(f"Error parsing diff for {file_path}: {e}")
+                
+                result[file_path] = {
+                    'status': self._get_file_status(diff),
+                    'lines': changed_lines
+                }
+            
+            # Store in cache
+            self._modified_files_cache[commit_hash] = result
+            
+            return result
             
         except Exception as e:
-            self.logger.error(f"Error getting info for commit {commit_hash}: {str(e)}")
-            return {"hash": commit_hash, "error": str(e)}
+            print(f"Error getting modified files for {commit_hash}: {e}")
+            return {}
+    
+    def _get_file_status(self, diff):
+        """Determine file status from diff object"""
+        if diff.new_file:
+            return 'added'
+        elif diff.deleted_file:
+            return 'deleted'
+        elif diff.renamed:
+            return 'renamed'
+        else:
+            return 'modified'
+            
+    def get_blame_info(self, commit_hash: str, file_path: str, 
+                      line_numbers: List[int]) -> Dict[str, Any]:
+        """
+        Get blame information for specific lines in a file at a specific commit.
+        Used by the SZZ algorithm to trace bug-inducing changes.
+        """
+        result = {
+            'commits': [],
+            'lines': {}
+        }
+        
+        if not line_numbers:
+            return result
+            
+        try:
+            blame_output = self.repo.git.blame(
+                '-l',  # Show long commit hashes
+                '-w',  # Ignore whitespace changes
+                f'{commit_hash}^',  # Use parent of the commit
+                '--',
+                file_path
+            )
+            
+            current_commit = None
+            current_line_num = None
+            
+            for line in blame_output.splitlines():
+                hash_match = re.match(r'^([a-f0-9]{40})', line)
+                if hash_match:
+                    current_commit = hash_match.group(1)
+                    line_match = re.search(r'\s+(\d+)\)', line)
+                    if line_match:
+                        current_line_num = int(line_match.group(1))
+                        
+                        if current_line_num in line_numbers:
+                            if current_commit not in result['commits']:
+                                result['commits'].append(current_commit)
+                            
+                            result['lines'][current_line_num] = {
+                                'commit': current_commit,
+                                'content': line[line.find(')')+1:].strip()
+                            }
+            
+            return result
+            
+        except Exception as e:
+            print(f"Error getting blame info for {file_path} at {commit_hash}: {e}")
+            return result
+    
+    def classify_commit(self, commit_hash: str) -> str:
+        """
+        Classify commit based on its message using Commit Guru's classification scheme.
+        Returns: 'corrective', 'feature_addition', 'merge', 'non_functional', 'perfective', or 'preventive'
+        """
+        if commit_hash in self._classification_cache:
+            return self._classification_cache[commit_hash]
+            
+        commit_info = self.get_commit_info(commit_hash)
+        if not commit_info:
+            return 'unknown'
+            
+        message = commit_info.get('message', '').lower()
+        
+        categories = {
+            'corrective': ['bug', 'fix', 'wrong', 'error', 'fail', 'problem', 'patch'],
+            'feature_addition': ['new', 'add', 'requirement', 'initial', 'create'],
+            'merge': ['merge'],
+            'non_functional': ['doc', 'documentation', 'comment', 'license'],
+            'perfective': ['clean', 'better', 'improve', 'enhance', 'refactor'],
+            'preventive': ['test', 'junit', 'coverage', 'assert']
+        }
+        
+        for category, keywords in categories.items():
+            if any(keyword in message for keyword in keywords):
+                self._classification_cache[commit_hash] = category
+                return category
+                
+        self._classification_cache[commit_hash] = 'unknown'
+        return 'unknown'
     
     def get_commits_between(self, start_ref: str, end_ref: str) -> List[Dict[str, Any]]:
         """Get all commits between two references."""
@@ -185,7 +388,7 @@ class GitCollector:
             self.logger.error(f"Error getting commits: {str(e)}")
             return []
 
-    
+
     def get_file_at_commit(self, file_path: str, commit_hash: str) -> Optional[str]:
         """
         Get the contents of a file at a specific commit.
@@ -209,7 +412,7 @@ class GitCollector:
         except Exception as e:
             self.logger.error(f"Error retrieving file {file_path} at commit {commit_hash}: {str(e)}")
             return None
-    
+
     def get_diff_between_commits(self, old_commit: str, new_commit: str, file_path: Optional[str] = None) -> str:
         """
         Get the diff between two commits for a specific file or the entire repository.
@@ -236,7 +439,7 @@ class GitCollector:
         except Exception as e:
             self.logger.error(f"Error getting diff between {old_commit} and {new_commit}: {str(e)}")
             return f"Error getting diff: {str(e)}"
-    
+
     def get_files_modified_in_commit(self, commit_hash: str) -> List[str]:
         """
         Get list of files modified in a commit.
@@ -269,7 +472,7 @@ class GitCollector:
             self.logger.error(f"Error getting modified files for commit {commit_hash}: {str(e)}")
             return []
 
-    
+
     def checkout_commit(self, commit_hash: str) -> bool:
         """
         Checkout a specific commit.
@@ -295,7 +498,7 @@ class GitCollector:
         except git.GitCommandError as e:
             self.logger.error(f"Error checking out commit {commit_hash}: {str(e)}")
             return False
-    
+
     def export_commit_data(self, output_path: str, commit_hash: str) -> bool:
         """
         Export detailed data about a commit to a JSON file.
@@ -455,59 +658,59 @@ class GitCollector:
             self.logger.error(f"Error getting nearby commits: {str(e)}")
             return {'before': None, 'after': None}
 
-def version_key(tag: str) -> tuple:
-    """
-    Convert version string to comparable tuple.
-    Handles special cases like 'M1', 'RC1' etc.
-    """
-    try:
-        version = tag.split('-')[-1] if '-' in tag else tag
-        
-        components = []
-        current_num = ''
-        current_str = ''
-        
-        for char in version:
-            if char.isdigit():
-                if current_str:
-                    components.append(current_str)
-                    current_str = ''
-                current_num += char
-            elif char == '.':
-                if current_num:
-                    components.append(int(current_num))
-                    current_num = ''
-                elif current_str:
-                    components.append(current_str)
-                    current_str = ''
-            else:
-                if current_num:
-                    components.append(int(current_num))
-                    current_num = ''
-                current_str += char
-        
-        if current_num:
-            components.append(int(current_num))
-        if current_str:
-            components.append(current_str)
-        
-        normalized = []
-        for comp in components:
-            if isinstance(comp, int):
-                normalized.extend([0, comp])
-            else:
-                if comp.startswith('M'):
-                    normalized.extend([-2, int(comp[1:]) if comp[1:].isdigit() else 0])
-                elif comp.startswith('RC'):
-                    normalized.extend([-1, int(comp[2:]) if comp[2:].isdigit() else 0])
-                else:
-                    normalized.extend([1, 0])  # Other strings sort after numbers
-        
-        while len(normalized) < 8:  # Support up to 4 version components
-            normalized.extend([0, 0])
+    def version_key(tag: str) -> tuple:
+        """
+        Convert version string to comparable tuple.
+        Handles special cases like 'M1', 'RC1' etc.
+        """
+        try:
+            version = tag.split('-')[-1] if '-' in tag else tag
             
-        return tuple(normalized)
-        
-    except Exception as e:
-        logging.getLogger(__name__).error(f"Error parsing version {tag}: {str(e)}")
-        return (float('inf'),) * 8  # Sort problematic versions to the end
+            components = []
+            current_num = ''
+            current_str = ''
+            
+            for char in version:
+                if char.isdigit():
+                    if current_str:
+                        components.append(current_str)
+                        current_str = ''
+                    current_num += char
+                elif char == '.':
+                    if current_num:
+                        components.append(int(current_num))
+                        current_num = ''
+                    elif current_str:
+                        components.append(current_str)
+                        current_str = ''
+                else:
+                    if current_num:
+                        components.append(int(current_num))
+                        current_num = ''
+                    current_str += char
+            
+            if current_num:
+                components.append(int(current_num))
+            if current_str:
+                components.append(current_str)
+            
+            normalized = []
+            for comp in components:
+                if isinstance(comp, int):
+                    normalized.extend([0, comp])
+                else:
+                    if comp.startswith('M'):
+                        normalized.extend([-2, int(comp[1:]) if comp[1:].isdigit() else 0])
+                    elif comp.startswith('RC'):
+                        normalized.extend([-1, int(comp[2:]) if comp[2:].isdigit() else 0])
+                    else:
+                        normalized.extend([1, 0])  # Other strings sort after numbers
+            
+            while len(normalized) < 8:  # Support up to 4 version components
+                normalized.extend([0, 0])
+                
+            return tuple(normalized)
+            
+        except Exception as e:
+            logging.getLogger(__name__).error(f"Error parsing version {tag}: {str(e)}")
+            return (float('inf'),) * 8  # Sort problematic versions to the end
