@@ -23,36 +23,41 @@ from utils.logging import setup_logging, get_logger, PerformanceLogger
 
 def parse_arguments() -> argparse.Namespace:
     """Parse command line arguments."""
-    parser = argparse.ArgumentParser(
-        description='CommitHunter: AI-Powered Commit Debugger',
-        formatter_class=argparse.RawDescriptionHelpFormatter
-    )
+    parser = argparse.ArgumentParser(description='CommitHunter: Find problematic commits')
     
-    parser.add_argument('--repo', required=True, 
-                       help='Path to Git repository or repository URL')
-    parser.add_argument('--good', required=True, 
-                       help='"Good" commit hash or tag')
-    parser.add_argument('--bad', required=True, 
-                       help='"Bad" commit hash or tag')
-    parser.add_argument('--test-name', 
-                        help='Specific test name to analyze (required for binary search)')
+    # Required arguments
+    parser.add_argument('--repo', required=True,
+                       help='URL of the Git repository')
+    parser.add_argument('--good', required=True,
+                       help='Known good commit (tests pass)')
+    parser.add_argument('--bad', required=True,
+                       help='Known bad commit (tests fail)')
     
-    parser.add_argument('--config', default='config/config.yaml',
-                       help='Path to configuration file')
-    parser.add_argument('--test-results', 
-                       help='Path to test results directory')
-    parser.add_argument('--output', default='reports/results.json',
-                       help='Path to output file')
-    parser.add_argument('--analyzer', 
-                       choices=['string', 'binary', 'performance', 'all'],
-                       default='all', 
-                       help='Analyzer to use')
-    parser.add_argument('--verbose', action='store_true',
-                       help='Enable verbose logging')
-    parser.add_argument('--report-format',
-                       choices=['json', 'html', 'text'],
-                       default='json',
-                       help='Output report format')
+    # Optional arguments
+    parser.add_argument('--output',
+                       help='Path to output file (default: stdout)')
+    parser.add_argument('--report-format', choices=['html', 'json'], default='html',
+                       help='Output format (default: html)')
+    parser.add_argument('--test-name',
+                       help='Specific test to analyze')
+    parser.add_argument('--config',
+                       help='Path to config file')
+    parser.add_argument('--test-results',
+                       help='Directory containing test results')
+    parser.add_argument('--cache-dir', default='.cache',
+                       help='Cache directory (default: .cache)')
+    parser.add_argument('--verbose', '-v', action='store_true',
+                       help='Enable verbose output')
+    parser.add_argument('--perf', action='store_true',
+                       help='Include performance analysis')
+    parser.add_argument('--perf-only', action='store_true',
+                       help='Only run performance analysis')
+    parser.add_argument('--classify-only', action='store_true',
+                       help='Only classify commits (no detailed analysis)')
+    parser.add_argument('--openj9', action='store_true',
+                       help='Enable OpenJ9-specific analysis')
+    parser.add_argument('--issue',
+                       help='OpenJ9 issue number')
     
     return parser.parse_args()
 
@@ -457,6 +462,104 @@ def generate_performance_report(analyzer_results: Dict[str, Any]) -> List[str]:
     lines.append('</div>')
     return lines
 
+def generate_commit_classification_report(results):
+    """Generate HTML for the commit classification results."""
+    lines = ['<div class="commit-classification">']
+    lines.append('<h2>Commit Classification Results</h2>')
+    
+    classified_commits = results.get("classified_commits", [])
+    if not classified_commits:
+        lines.append('<p>No commits were classified.</p>')
+        lines.append('</div>')
+        return lines
+    
+    # Add summary
+    likely_problematic = [c for c in classified_commits if c["classification"] == "Likely Problematic"]
+    safe = [c for c in classified_commits if c["classification"] == "Safe"]
+    
+    lines.append('<div class="classification-summary">')
+    lines.append(f'<p><strong>Total Commits Analyzed:</strong> {len(classified_commits)}</p>')
+    lines.append(f'<p><strong>Likely Problematic:</strong> {len(likely_problematic)} ({len(likely_problematic)/len(classified_commits)*100:.1f}%)</p>')
+    lines.append(f'<p><strong>Safe:</strong> {len(safe)} ({len(safe)/len(classified_commits)*100:.1f}%)</p>')
+    lines.append('</div>')
+    
+    # Add table of classified commits
+    lines.append('<table class="classification-table">')
+    lines.append('<tr><th>Commit</th><th>Classification</th><th>Confidence</th><th>Author</th><th>Message</th><th>Reasons</th></tr>')
+    
+    for commit in classified_commits:
+        # Determine CSS class based on classification
+        css_class = "problematic" if commit["classification"] == "Likely Problematic" else "safe"
+        
+        lines.append(f'<tr class="{css_class}">')
+        lines.append(f'<td>{commit["commit_hash"][:8]}</td>')
+        lines.append(f'<td>{commit["classification"]}</td>')
+        lines.append(f'<td>{commit["confidence"]:.2f}</td>')
+        
+        # Get commit details if available
+        commit_info = next((c for c in results.get("commits", []) 
+                          if c["hash"] == commit["commit_hash"]), {})
+        
+        author = commit_info.get("author", "Unknown")
+        message = commit_info.get("message", "")
+        if len(message) > 80:
+            message = message[:77] + "..."
+        
+        lines.append(f'<td>{author}</td>')
+        lines.append(f'<td>{message}</td>')
+        
+        # Add reasons
+        reasons = "<br>".join(commit["reasons"]) if commit.get("reasons") else "-"
+        lines.append(f'<td>{reasons}</td>')
+        
+        lines.append('</tr>')
+    
+    lines.append('</table>')
+    lines.append('</div>')
+    
+    return lines
+
+def get_classification_css():
+    return """
+    .commit-classification {
+        margin: 20px 0;
+        padding: 15px;
+    }
+    
+    .classification-summary {
+        background-color: #f8f9fa;
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+    }
+    
+    .classification-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+    }
+    
+    .classification-table th {
+        background-color: #f2f2f2;
+        padding: 8px;
+        text-align: left;
+        border: 1px solid #ddd;
+    }
+    
+    .classification-table td {
+        padding: 8px;
+        border: 1px solid #ddd;
+    }
+    
+    .classification-table tr.problematic {
+        background-color: #fff0f0;
+    }
+    
+    .classification-table tr.safe {
+        background-color: #f0fff0;
+    }
+    """
+
 def generate_report(results: Dict[str, Any], format: str = 'json') -> str:
     """Generate analysis report."""
     if format == 'json':
@@ -566,6 +669,9 @@ def generate_report(results: Dict[str, Any], format: str = 'json') -> str:
             
             /* Binary search styles */
             ''' + get_binary_search_css() + '''
+            
+            /* Classification styles */
+            ''' + get_classification_css() + '''
         </style>
         ''')
         
@@ -694,6 +800,8 @@ def generate_report(results: Dict[str, Any], format: str = 'json') -> str:
             
             elif analyzer["status"] == "error":
                 lines.append(f'<p class="error">Error: {analyzer.get("error", "Unknown error")}</p>')
+        
+        lines.extend(generate_commit_classification_report(results))
         
         lines.extend(['</body></html>'])
         return '\n'.join(lines)
@@ -848,6 +956,70 @@ def debug_all_error_extraction_methods(test_collector):
     
     return test_results.get("error_message") if test_results else error_message
 
+def process_openj9_issue(args, git_collector, test_collector, analyzers, config):
+    """
+    Process an OpenJ9 issue using binary search and classification.
+    
+    Args:
+        args: Command line arguments
+        git_collector: Git collector instance
+        test_collector: Test collector instance
+        analyzers: List of analyzer instances
+        config: Configuration instance
+        
+    Returns:
+        Dictionary with analysis results
+    """
+    logger = logging.getLogger(__name__)
+    logger.info(f"Processing OpenJ9 issue between {args.good[:8]} and {args.bad[:8]}")
+    
+    # Process the issue with test collector
+    issue_results = test_collector.process_openj9_issue(
+        args.issue, args.good, args.bad, git_collector
+    )
+    
+    # Try the binary search first if we have a test name
+    if args.test_name:
+        binary_analyzer = next((a for a in analyzers 
+                               if isinstance(a, BinarySearchAnalyzer)), None)
+        if binary_analyzer:
+            logger.info(f"Running binary search for test '{args.test_name}'")
+            
+            def test_runner(commit, options=None):
+                git_collector.checkout_commit(commit)
+                test_result = test_collector.run_test(args.test_name)
+                return test_result.get("status") == "passed" if test_result else False
+            
+            binary_results = binary_analyzer.find_problematic_commit(
+                args.good, args.bad, test_runner, args.test_name
+            )
+            
+            issue_results["binary_search_results"] = binary_results
+    
+    # Classify all commits between good and bad
+    all_commits = git_collector.get_commits_between(args.good, args.bad)
+    
+    for commit in all_commits:
+        commit_info = git_collector.get_commit_info(commit['hash'])
+        
+        # Get the current classification if it exists
+        existing_classification = next((c for c in issue_results["classified_commits"] 
+                                      if c["commit_hash"] == commit['hash']), None)
+        
+        if existing_classification:
+            # Use the existing classification
+            continue
+        else:
+            # Add new classification
+            classification = test_collector.classify_commit_for_test_failure(
+                commit_info, issue_results["failure_analysis"])
+            issue_results["classified_commits"].append(classification)
+    
+    # Sort commits by score (most likely problematic first)
+    issue_results["classified_commits"].sort(key=lambda x: x['score'], reverse=True)
+    
+    return issue_results
+
 def main():
     """Main entry point for CommitHunter."""
     args = parse_arguments()
@@ -905,15 +1077,59 @@ def main():
                 failure_info = test_collector.extract_failure_messages(all_results)
                 if failure_info:
                     logger.info(f"Failure info: {json.dumps(failure_info, indent=2)}")
-        results = analyze_commits(
-            git_collector=git_collector,
-            test_collector=test_collector,
-            analyzers=analyzers,
-            good_commit=args.good,
-            bad_commit=args.bad,
-            test_name=args.test_name,
-            config=config
-        )
+        
+        # Add OpenJ9-specific handling
+        if args.openj9:
+            logger.info("Using OpenJ9-specific analysis")
+            
+            if args.issue:
+                # Process as an OpenJ9 issue
+                results = process_openj9_issue(args, git_collector, test_collector, analyzers, config)
+            else:
+                # Regular analysis with OpenJ9 enhancements
+                results = analyze_commits(
+                    git_collector=git_collector,
+                    test_collector=test_collector,
+                    analyzers=analyzers,
+                    good_commit=args.good,
+                    bad_commit=args.bad,
+                    test_name=args.test_name,
+                    config=config
+                )
+                
+                # Add additional OpenJ9-specific analysis
+                for analyzer in analyzers:
+                    if isinstance(analyzer, PerformanceAnalyzer):
+                        perf_results = analyzer.analyze_openj9_performance(
+                            args.good, args.bad, args.test_name
+                        )
+                        
+                        # Update the results with performance classification
+                        for perf_commit in perf_results.get('classified_commits', []):
+                            # Find matching commit in main results
+                            for analyzer_result in results['analyzers']:
+                                if 'results' in analyzer_result and 'suspicious_commits' in analyzer_result['results']:
+                                    for commit in analyzer_result['results']['suspicious_commits']:
+                                        if commit.get('hash') == perf_commit.get('commit_hash'):
+                                            # Update the classification
+                                            commit['classification'] = perf_commit['classification']
+                                            commit['confidence'] = perf_commit['confidence']
+                                            if 'reasons' not in commit:
+                                                commit['reasons'] = []
+                                            commit['reasons'].extend(perf_commit['reasons'])
+                        
+                        results['performance_analysis'] = perf_results
+        else:
+            # Regular analysis
+            results = analyze_commits(
+                git_collector=git_collector,
+                test_collector=test_collector,
+                analyzers=analyzers,
+                good_commit=args.good,
+                bad_commit=args.bad,
+                test_name=args.test_name,
+                config=config
+            )
         
         report = generate_report(results, args.report_format)
         os.makedirs(os.path.dirname(args.output), exist_ok=True)
@@ -927,6 +1143,8 @@ def main():
     except Exception as e:
         logger.exception("Error in CommitHunter")
         sys.exit(1)
+
+
 
 if __name__ == "__main__":
     main()
