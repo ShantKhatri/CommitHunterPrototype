@@ -10,6 +10,7 @@ CommitHunter is an intelligent tool designed to identify problematic Git commits
 - **Binary Search**: Efficiently narrows down problematic commits
 - **Performance Analysis**: Detects performance regressions and bottlenecks
 - **Multiple Report Formats**: Supports JSON, HTML, and text output
+- **OpenJ9 Specialized Analysis**: Built-in support for Eclipse OpenJ9 projects
 - **Flexible Integration**: Works with various test frameworks and Git repositories
 
 ## 📋 Requirements
@@ -38,30 +39,110 @@ pip install -r requirements.txt
 
 ## 🎯 Usage
 
-### Basic Command (Sample commits and versions provided)
+### Basic Commands
 
-#### For light run and between good and bad commits
+#### For light run between good and bad commits
 ```bash
-python src\main.py --repo https://github.com/eclipse/openj9 --good "96ef5c5b4026552ec5d6f0413d034cf09ba7103f" --bad "eac681f0cee21af67657f575a366590b937a2a13" --output ./reports/openj9_results.html --report-format html --verbos
+python src\main.py --repo https://github.com/eclipse/openj9 --good "96ef5c5b4026552ec5d6f0413d034cf09ba7103f" --bad "eac681f0cee21af67657f575a366590b937a2a13" --output ./reports/openj9_results.html --report-format html --verbose
 ```
 
-#### For Normal/High run and between two versions (for all commits in the last version)
+#### For analysis between two versions (all commits in the last version)
 ```bash
-python src/main.py --repo https://github.com/eclipse/openj9 --good openj9-0.38.0 --bad openj9-0.39.0 --output ./reports/analysis.html --report-format html --verbose
+python src\main.py --repo https://github.com/eclipse/openj9 --good openj9-0.38.0 --bad openj9-0.39.0 --output ./reports/analysis.html --report-format html --verbose
+```
+
+#### For OpenJ9 issue analysis with specific test
+```bash
+python src\main.py --repo https://github.com/eclipse/openj9 --good "good_commit_hash" --bad "bad_commit_hash" --test-name "TestClassName" --output ./reports/test_analysis.html --openj9 --issue 12345
 ```
 
 ### Command Line Options
 
-| Option | Description | Required |
-|--------|-------------|----------|
-| `--repo` | Repository URL or path | Yes |
-| `--good` | Known good commit/tag | Yes |
-| `--bad` | Known bad commit/tag | Yes |
-| `--output` | Output file path | No |
-| `--report-format` | Output format (json/html/text) | No |
-| `--test-results` | Test results directory | No |
-| `--verbose` | Enable verbose logging | No |
-| `--test-name` | Specific test to analyze | No |
+| Argument         | Description                                                   | Required | Default        | Analysis Impact                                                    |
+|------------------|---------------------------------------------------------------|----------|----------------|--------------------------------------------------------------------|
+| `--repo`         | URL or local path to the Git repository                       | ✓        | -              | Defines the codebase to analyze                                    |
+| `--good`         | Commit hash/tag where tests pass                              | ✓        | -              | Establishes baseline for comparison                                |
+| `--bad`          | Commit hash/tag where tests fail                              | ✓        | -              | Identifies the endpoint with issues                                |
+| `--output`       | Path to save analysis results                                 | ✗        | stdout         | Controls where results are written                                 |
+| `--report-format`| Output format (`html` or `json`)                              | ✗        | html           | Determines report presentation style                               |
+| `--test-name`    | Specific test to analyze                                      | ✗        | -              | Enables binary search analysis targeting a specific test failure   |
+| `--config`       | Path to configuration file                                    | ✗        | config.yaml    | Allows customization of analyzer thresholds                        |
+| `--test-results` | Directory containing test results                             | ✗        | auto-generated | Uses existing test results instead of generating new ones          |
+| `--cache-dir`    | Directory for caching Git data                                | ✗        | .cache         | Controls repository caching location                               |
+| `--verbose`      | Enable detailed logging                                       | ✗        | false          | Increases logging verbosity for debugging                          |
+| `--perf`         | Include performance analysis                                  | ✗        | false          | Adds performance regression detection                              |
+| `--perf-only`    | Only run performance analysis                                 | ✗        | false          | Focuses exclusively on performance metrics                         |
+| `--classify-only`| Only classify commits                                         | ✗        | false          | Performs basic classification without in-depth analysis            |
+| `--openj9`       | Enable OpenJ9-specific analysis                               | ✗        | false          | Activates specialized Eclipse OpenJ9 analysis pipeline             |
+| `--issue`        | OpenJ9 issue number                                           | ✗        | -              | Links analysis to specific issue and enables OpenJ9-focused mode   |
+
+
+## Analysis Types
+CommitHunter can run different types of analyses depending on the arguments provided:
+#### Basic Analysis
+```bash
+python src\main.py --repo https://github.com/eclipse/openj9 --good "good_commit_hash" --bad "bad_commit_hash" --output ./reports/analysis.html
+```
+
+- Performs string matching to find suspicious commits
+- Classifies commits between good and bad as safe or problematic
+- Generates a standard HTML report
+
+#### Test-Focused Binary Search
+```bash
+python src\main.py --repo https://github.com/eclipse/openj9 --good "good_commit_hash" --bad "bad_commit_hash" --test-name "TestClassName" --output ./reports/test_analysis.html
+```
+
+- **Enables binary search** to efficiently locate the exact commit that breaks a specific test
+- Runs the specified test on various commits to pinpoint the failure
+- Provides detailed analysis of the problematic commit
+
+#### OpenJ9 Analysis
+```bash
+python src\main.py --repo https://github.com/eclipse/openj9 --good "good_commit_hash" --bad "bad_commit_hash" --openj9 --output ./reports/openj9_results.html
+```
+
+- **Activates specialized JVM-specific analysis** tailored for Eclipse OpenJ9 codebase
+- Uses component-specific classification heuristics for JIT, GC, and threading issues
+- Applies OpenJ9-specific error patterns to more accurately identify problematic commits
+
+#### OpenJ9 Issue-Specific Analysis
+```bash
+python src\main.py --repo https://github.com/eclipse/openj9 --good "good_commit_hash" --bad "bad_commit_hash" --openj9 --issue 12345 --output ./reports/issue_12345.html
+```
+
+- **Links analysis to a specific OpenJ9 issue number**
+- Extracts issue-specific error patterns and keywords
+- Classifies commits based on their relevance to the specific issue
+- Creates a more focused, issue-specific report
+
+#### Performance Analysis
+```bash
+python src\main.py --repo https://github.com/eclipse/openj9 --good "good_commit_hash" --bad "bad_commit_hash" --perf --output ./reports/perf_analysis.html
+```
+
+- **Adds performance regression detection**
+- Analyzes performance metrics between good and bad commits
+- Identifies commits introducing performance degradation
+
+#### Performance-Only Analysis
+```bash
+python src\main.py --repo https://github.com/eclipse/openj9 --good "good_commit_hash" --bad "bad_commit_hash" --perf-only --output ./reports/perf_analysis.html
+```
+
+- **Focuses exclusively on performance metrics**
+- Skips other analysis types for faster performance-focused results
+- Useful for performance regression investigations
+
+#### Combined Advanced Analysis
+```bash
+python src\main.py --repo https://github.com/eclipse/openj9 --good "good_commit_hash" --bad "bad_commit_hash" --test-name "TestName" --openj9 --issue 12345 --perf --output ./reports/comprehensive_analysis.html
+```
+
+- **Runs all available analysis types**
+- Combines binary search, string matching, performance analysis, and OpenJ9-specific issue analysis
+- Provides the most comprehensive troubleshooting results
+- Generates a detailed HTML report linking all findings
 
 ## 📁 Project Structure
 
@@ -100,7 +181,6 @@ Below is a visual representation of the sequential processing flow:
 
 ![Processing Flow](docs/Sequential_Processing_Flow_Diagram.png)
 
-
 ## ⚙️ Configuration
 
 Edit `config/config.yaml` to customize:
@@ -121,8 +201,34 @@ analyzers:
   performance:
     enabled: true
     regression_threshold: 0.05
+logging:
+  level: INFO
+  file: commit_hunter.log
+  max_size: 10485760
+  backup_count: 5
+openj9:
+  risk_thresholds:
+    high: 0.7
+    medium: 0.4
+```
+## Report Formats
+CommitHunter supports multiple report formats to suit different needs:
+
+### HTML Reports (default)
+- Visual representation with tables and highlighting
+- Interactive sections for different analysis types
+- Color-coded classifications and metrics
+- Easily shareable in browsers
+
+#### JSON Reports
+```bash
+python src\main.py --repo https://github.com/eclipse/openj9 --good "good_commit_hash" --bad "bad_commit_hash" --report-format json --output ./reports/analysis.json
 ```
 
+- Machine-readable JSON format
+- Useful for integrating with other tools
+- Contains all raw analysis data
+- Suitable for custom processing pipelines
 ## 📊 Sample Output
 
 ### HTML Report
@@ -162,22 +268,27 @@ results = analyzer.analyze_performance_regression(
 )
 ```
 
+### OpenJ9 Test Failure Analysis
+
+```python
+test_collector = TestCollector("test_results")
+failure_analysis = test_collector.analyze_openj9_test_failure(
+    test_name="org.openj9.TestClass",
+    error_message="Cannot invoke method because object is null",
+    good_sha="good_commit_hash",
+    bad_sha="bad_commit_hash"
+)
+```
+
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+2. Create a feature branch (`git checkout -b feature/test-feature`)
+3. Commit your changes (`git commit -m 'Add test feature'`)
+4. Push to the branch (`git push origin feature/test-feature`)
 5. Open a Pull Request
-
 
 ## 📮 Contact
 
-Your Name - [Prashantkumar Khatri](https://www.linkedin.com/in/prashantkumar-khatri/)
+Prashantkumar Khatri - [LinkedIn](https://www.linkedin.com/in/prashantkumar-khatri/)
 Project Link: [https://github.com/ShantKhatri/CommitHunter](https://github.com/ShantKhatri/CommitHunter)
-
-## 🙏 Acknowledgments
-
-- Eclipse OpenJ9 project for test cases
-- GitPython library
-- All contributors and testers

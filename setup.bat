@@ -17,8 +17,6 @@ python -m pip install --upgrade pip
 echo Installing requirements...
 pip install -r requirements.txt
 
-:: Initialize git hooks
-pre-commit install
 
 echo Setup complete!
 echo To activate the environment, run: .\venv\Scripts\activate
