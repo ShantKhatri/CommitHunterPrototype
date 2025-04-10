@@ -691,3 +691,87 @@ class BinarySearchAnalyzer:
         
         sorted_related = sorted(related_scores.items(), key=lambda x: x[1], reverse=True)
         return [commit_hash for commit_hash, _ in sorted_related[:3]]
+    
+    def find_problematic_commit(self, good_commit: str, bad_commit: str, 
+                          test_runner: Callable[[str, Optional[Dict]], bool],
+                          test_name: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Find the problematic commit between a good and bad commit using binary search.
+        
+        Args:
+            good_commit: The known good commit hash where tests pass
+            bad_commit: The known bad commit hash where tests fail
+            test_runner: Function to run tests on specific commits
+            test_name: Name of the test being run (for reporting)
+            
+        Returns:
+            Dictionary with results including the first bad commit
+        """
+        self._log(f"Finding problematic commit for test '{test_name}' between {good_commit[:8]} and {bad_commit[:8]}")
+        
+        analysis_results = self.analyze_commit_range(good_commit, bad_commit, test_runner)
+        
+        if not analysis_results.get('success', False):
+            return {
+                "status": "error",
+                "message": analysis_results.get('error', 'Unknown error in binary search'),
+                "commits_tested": self.tests_run,
+                "total_commits": len(self.git_collector.get_commits_between(good_commit, bad_commit))
+            }
+        
+        # Extract the most likely problematic commit
+        results = analysis_results.get('results', [])
+        if not results:
+            return {
+                "status": "error",
+                "message": "No problematic commit identified",
+                "commits_tested": self.tests_run,
+                "total_commits": len(self.git_collector.get_commits_between(good_commit, bad_commit))
+            }
+        
+        # Get the primary problematic commit (highest confidence)
+        problematic_commits = [r for r in results if r['category'] == 'Likely Problematic']
+        if not problematic_commits:
+            return {
+                "status": "error",
+                "message": "No definitive problematic commit found",
+                "commits_tested": self.tests_run,
+                "total_commits": len(self.git_collector.get_commits_between(good_commit, bad_commit))
+            }
+        
+        primary_commit = max(problematic_commits, key=lambda x: x['confidence'])
+        
+        # Get full commit info
+        commit_info = self._get_commit_info(primary_commit['commit'])
+        
+        # Format search history
+        search_history = []
+        if hasattr(self, '_search_history'):
+            search_history = self._search_history
+        
+        # Check for performance impact
+        performance_impact = {
+            "has_impact": False
+        }
+        
+        return {
+            "status": "success",
+            "first_bad_commit": {
+                "hash": primary_commit['commit'],
+                "author": commit_info.get('author', 'Unknown'),
+                "date": commit_info.get('date', 'Unknown'),
+                "message": commit_info.get('message', 'No message'),
+                "modified_files": commit_info.get('files_changed', []),
+                "confidence": primary_commit['confidence']
+            },
+            "related_commits": [r['commit'] for r in results if r['category'] == 'Potentially Related'],
+            "commits_tested": self.tests_run,
+            "total_commits": len(self.git_collector.get_commits_between(good_commit, bad_commit)),
+            "search_history": search_history,
+            "performance_impact": performance_impact
+        }
+
+    def _log(self, message: str) -> None:
+        """Log a message if logger is available"""
+        if self.logger:
+            self.logger.info(message)

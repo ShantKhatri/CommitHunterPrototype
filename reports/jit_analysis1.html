@@ -1,0 +1,256 @@
+<html><head>
+<title>CommitHunter Analysis Report</title>
+
+        <style>
+            /* Base styles */
+            body { 
+                font-family: Arial, sans-serif; 
+                margin: 20px; 
+                color: #333;
+                line-height: 1.6;
+            }
+            code { font-family: Consolas, monospace; }
+            pre { 
+                white-space: pre-wrap; 
+                background-color: #f5f5f5; 
+                padding: 10px; 
+                border-radius: 4px; 
+                overflow: auto;
+                max-height: 400px;
+            }
+            .error { color: #d9534f; }
+            h1, h2, h3, h4, h5, h6 { 
+                margin-top: 1em;
+                margin-bottom: 0.5em;
+                font-weight: 600;
+                color: #333;
+            }
+            h4 { margin: 5px 0; }
+            ul { margin: 5px 0; }
+            
+            /* Table styling */
+            .commit-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 20px 0;
+            }
+            
+            .commit-table th {
+                background-color: #f2f2f2;
+                text-align: left;
+                padding: 8px;
+                border: 1px solid #ddd;
+            }
+            
+            .commit-table td {
+                padding: 8px;
+                border: 1px solid #ddd;
+                vertical-align: top;
+            }
+            
+            .files-container {
+                background-color: #f9f9f9;
+            }
+            
+            .file-list {
+                list-style: none;
+                padding: 0 15px;
+                margin: 5px 0;
+                max-height: 300px;
+                overflow-y: auto;
+                display: block !important;
+            }
+            
+            .file-list li {
+                padding: 3px 0;
+                margin: 2px 0;
+                border-bottom: 1px solid #eee;
+                display: block !important;
+            }
+            
+            .file-list li code {
+                display: inline-block;
+                word-break: break-all;
+            }
+            
+            .score {
+                color: #0066cc;
+                font-weight: bold;
+            }
+            
+            .changes {
+                float: right;
+                font-family: monospace;
+            }
+            
+            .additions {
+                color: green;
+                margin-right: 5px;
+            }
+            
+            .deletions {
+                color: red;
+            }
+            
+            .error-message-box {
+                background-color: #fff3cd;
+                border-left: 4px solid #ffc107;
+                padding: 10px;
+                margin: 15px 0;
+            }
+            
+            /* Binary search styles */
+            
+    .binary-search {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 5px;
+        margin: 20px 0;
+    }
+    
+    .result-summary {
+        background: #e9ecef;
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+    
+    .bad-commit {
+        border-left: 4px solid #dc3545;
+        padding-left: 15px;
+        margin: 15px 0;
+    }
+    
+    .commit-message {
+        background: #fff;
+        padding: 10px;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        white-space: pre-wrap;
+    }
+    
+    .modified-files {
+        list-style: none;
+        padding-left: 0;
+    }
+    
+    .modified-files li {
+        padding: 5px 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .search-history table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+    }
+    
+    .search-history th,
+    .search-history td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .search-history .pass { color: #28a745; }
+    .search-history .fail { color: #dc3545; }
+    
+    .performance-impact {
+        background: #fff3cd;
+        padding: 15px;
+        border-radius: 4px;
+        margin-top: 20px;
+    }
+    
+            
+            /* Classification styles */
+            
+    .commit-classification {
+        margin: 20px 0;
+        padding: 15px;
+    }
+    
+    .classification-summary {
+        background-color: #f8f9fa;
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+    }
+    
+    .classification-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+    }
+    
+    .classification-table th {
+        background-color: #f2f2f2;
+        padding: 8px;
+        text-align: left;
+        border: 1px solid #ddd;
+    }
+    
+    .classification-table td {
+        padding: 8px;
+        border: 1px solid #ddd;
+    }
+    
+    .classification-table tr.problematic {
+        background-color: #fff0f0;
+    }
+    
+    .classification-table tr.safe {
+        background-color: #f0fff0;
+    }
+    
+        </style>
+        
+</head><body>
+<h1>CommitHunter Analysis Report</h1>
+<h2>Analysis Parameters</h2>
+<ul>
+<li>Good Commit: 96ef5c5b4026552ec5d6f0413d034cf09ba7103f</li>
+<li>Bad Commit: eac681f0cee21af67657f575a366590b937a2a13</li>
+<li>Test Name: JITTest</li>
+</ul>
+<h2>BinarySearchAnalyzer Results</h2>
+<p>Status: success</p>
+<p>Duration: 39.21 seconds</p>
+<div class="binary-search">
+<h3>Binary Search Results</h3>
+<div class="error-message">
+<p>Error: Good commit does not pass tests</p>
+<p>Commits tested: 0</p>
+</div>
+</div>
+<div class="integrated-analysis">
+<h2>Integrated Analysis</h2>
+<p>This analysis combines binary search results with string matching:</p>
+<ul>
+<li><strong>Binary search</strong> identified commit  as the first bad commit</li>
+<li><strong>String matching</strong> did not find relevant commits</li>
+</ul>
+</div>
+<h2>StringMatcher Results</h2>
+<p>Status: success</p>
+<p>Duration: 57.06 seconds</p>
+<h3>Suspicious Commits</h3>
+<div class="error-message-box">
+<h4>Error Message Used for Analysis:</h4>
+<pre>Cannot invoke "org.openj9.IProfiler.getResult()" because "profiler" is null: at org.openj9.TestProfiler.testMethod(TestProfiler.java:45)
+    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl....</pre>
+</div>
+<p>No suspicious commits found.</p>
+<div class="integrated-analysis">
+<h2>Integrated Analysis</h2>
+<p>This analysis combines binary search results with string matching:</p>
+<ul>
+<li><strong>Binary search</strong> identified commit  as the first bad commit</li>
+<li><strong>String matching</strong> did not find relevant commits</li>
+</ul>
+</div>
+<div class="commit-classification">
+<h2>Commit Classification Results</h2>
+<p>No commits were classified.</p>
+</div>
+</body></html>
